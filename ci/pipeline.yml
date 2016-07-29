@@ -14,7 +14,7 @@ groups:
     - sonar
 - name: release
   jobs:
-    - manual-deploy-to-prod
+    - deploy-to-prod
 
 resources:
 - name: sample-spring-cloud-svc-repo
@@ -197,7 +197,7 @@ jobs:
         SONAR_URL: {{sonar-url}}
 
 
-- name: manual-deploy-to-prod
+- name: deploy-to-prod
   serial: true
   plan:
   - aggregate:
