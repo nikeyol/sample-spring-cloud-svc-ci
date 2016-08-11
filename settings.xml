@@ -14,4 +14,21 @@
 			<password>deployment123</password>
 		</server>
 	</servers>
+  <profiles>
+    <profile>
+      <id>sonar</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <!--
+        <sonar.jdbc.url>jdbc:postgresql://localhost/sonar</sonar.jdbc.url>
+        <sonar.jdbc.driver>org.postgresql.Driver</sonar.jdbc.driver>
+        <sonar.jdbc.username>user</sonar.jdbc.username>
+        <sonar.jdbc.password>password</sonar.jdbc.password>
+        -->
+        <sonar.host.url>http://192.168.99.102:9000</sonar.host.url>
+      </properties>
+    </profile>
+  </profiles>
 </settings>
