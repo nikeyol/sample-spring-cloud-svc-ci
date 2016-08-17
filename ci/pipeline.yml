@@ -1,227 +1,292 @@
----
-groups:
-- name: commit
-  jobs:
-    - unit
-    - build-artifact
-- name: acceptance
-  jobs:
-    - deploy-to-test
-    - integration-tests
-    - promote-to-uat
-- name: quality
-  jobs:
-    - sonar
-- name: release
-  jobs:
-    - deploy-to-prod
-
 resources:
-- name: sample-spring-cloud-svc-repo
-  type: git
-  source:
-    uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
-    branch: concourse
-    private_key: {{git-private-key}}
-
-- name: version
-  type: semver
-  source:
-    bucket: sample-spring-cloud-svc-pipeline-artifacts
-    key: current-version
-    access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
-    initial_version: 1.0.0
-
-- name: sample-spring-cloud-svc-release
-  type: s3
-  source:
-    bucket: sample-spring-cloud-svc-pipeline-artifacts
-    regexp: sample-spring-cloud-svc-ci-(.*).jar
-    access_key_id: {{s3-access-key-id}}
-    secret_access_key: {{s3-secret-access-key}}
+  - name: repo-develop
+    type: git
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: develop
+      private_key: {{github-private-key}}
+    check_every: 10s # for demo
+  - name: repo-release
+    type: git
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: release
+      private_key: {{github-private-key}}
+    check_every: 10s # for demo
+  - name: repo-master
+    type: git
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: master
+      private_key: {{github-private-key}}
+    check_every: 10s # for demo
+  - name: version
+    type: semver
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: version
+      private_key: {{github-private-key}}
+      file: version
+      driver: git
+      initial_version: 0.5.0
+  - name: cf-prod
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: {{cf-space-prod}}
+      skip_cert_check: true
+  - name: cf-staging
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: {{cf-space-staging}}
+      skip_cert_check: true
+  - name: cf-dev
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: {{cf-space-dev}}
+      skip_cert_check: true
+  - name: m2
+    type: docker-image
+    source:
+      repository: making/m2
+      # username: {-{docker-username}}
+      # password: {-{docker-password}}
+      # email: {-{docker-email}}
 
 jobs:
-- name: unit
-  plan:
-  - get: sample-spring-cloud-svc-repo
-    trigger: true
-  - task: unit
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: java
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/unit.sh"]
+  - name: test-develop
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: m2
+        - get: repo
+          resource: repo-develop
+          trigger: true
+      - task: unit
+        file: repo/ci/tasks/unit.yml
 
-- name: build-artifact
-  serial: true
-  plan:
-  - get: sample-spring-cloud-svc-repo
-    passed: [unit]
-    trigger: true
-  - get: version
-    params: {bump: patch}
-  - task: build-artifact
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: java
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-        - name: version
-      outputs:
-        - name: build
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/build-artifact.sh"]
-  - put: sample-spring-cloud-svc-release
-    params:
-      file: build/sample-spring-cloud-svc-ci-*.jar
-  - put: sample-spring-cloud-svc-repo
-    params:
-      repository: sample-spring-cloud-svc-repo
-      tag: version/number
-  - put: version
-    params: {file: version/number}
+  - name: deploy-develop
+    serial: true
+    public: false
+    plan:
+      - aggregate:
+        - get: m2
+        - get:  repo
+          resource: repo-develop
+          passed: [ test-develop ]
+          trigger: true
+      - task: build
+        file: repo/ci/tasks/build.yml
+      - put: cf-dev
+        params:
+          manifest: repo/manifest-dev.yml
+          path: output/demo.jar
+          current_app_name: sample-spring-cloud-svc-ci-dev
 
-- name: deploy-to-test
-  plan:
-  - aggregate:
-    - get: sample-spring-cloud-svc-release
-      passed: [build-artifact]
-      trigger: true
-    - get: sample-spring-cloud-svc-repo
-      passed: [build-artifact]
-      trigger: true
-  - task: deploy-to-cats
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: datianshi/cf-cli
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-        - name: sample-spring-cloud-svc-release
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/cf-deployment.sh"]
-      params:
-        API_ENDPOINT: {{api-endpoint}}
-        USERNAME: {{cf-username}}
-        PASSWORD: {{cf-password}}
-        ORG: {{cf-org}}
-        SPACE: {{cf-space-test}}
-        HOST: {{host-test}}
+  - name: test-release
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-release
+          trigger: true
+        - get: m2
+      - task: unit
+        file: repo/ci/tasks/unit.yml
 
-- name: integration-tests
-  plan:
-  - aggregate:
-    - get: sample-spring-cloud-svc-release
-      passed: [deploy-to-test]
-      trigger: true
-    - get: sample-spring-cloud-svc-repo
-      passed: [deploy-to-test]
-      trigger: true
-  - task: cats
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: java
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/cats.sh"]
-      params:
-        URL: {{test-url}}
+  - name: deploy-staging
+    serial: true
+    public: false
+    plan:
+      - aggregate:
+        - get: m2
+        - get:  repo
+          resource: repo-release
+          passed: [ test-release ]
+          trigger: true
+      - task: build
+        file: repo/ci/tasks/build.yml
+      - put: cf-staging
+        params:
+          manifest: repo/manifest-staging.yml
+          path: output/demo.jar
+          current_app_name: sample-spring-cloud-svc-ci-staging
 
-- name: promote-to-uat
-  plan:
-  - aggregate:
-    - get: sample-spring-cloud-svc-release
-      passed: [integration-tests]
-      trigger: true
-    - get: sample-spring-cloud-svc-repo
-      passed: [integration-tests]
-      trigger: true
-  - task: deploy-to-uat
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: datianshi/cf-cli
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-        - name: sample-spring-cloud-svc-release
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/cf-deployment.sh"]
-      params:
-        API_ENDPOINT: {{api-endpoint}}
-        USERNAME: {{cf-username}}
-        PASSWORD: {{cf-password}}
-        ORG: {{cf-org}}
-        SPACE: {{cf-space-uat}}
-        HOST: {{host-uat}}
+  - name: merge-release-to-master
+    public: true
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-master
+        - get: repo-release
+          passed: [ test-release ]
+      - task: merge-release-to-master
+        file: repo-release/ci/tasks/merge-release-branch.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: repo
+        resource: repo-master
+        params:
+          repository: out
 
-- name: sonar
-  plan:
-  - get: sample-spring-cloud-svc-repo
-    passed: [promote-to-uat]
-    trigger: true
-  - task: publish-quality-metrics
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: java
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/sonar.sh"]
-      params:
-        SONAR_URL: {{sonar-url}}
+  - name: test-master
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-master
+          # comment out bellow to support hotfix
+          passed: [ merge-release-to-master ]
+          trigger: true
+        - get: m2
+      - task: unit
+        file: repo/ci/tasks/unit.yml
 
+  - name: tag-master
+    public: true
+    plan:
+      - aggregate:
+        - get:  repo
+          resource: repo-master
+          passed: [ test-master ]
+          trigger: true
+        - get: repo-release
+        - get: version
+        - get: m2
+      - task: bump-to-release-version
+        file: repo-release/ci/tasks/bump-to-release-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: repo
+        resource: repo-master
+        params:
+          repository: out
+          tag: version/number
 
-- name: deploy-to-prod
-  serial: true
-  plan:
-  - aggregate:
-    - get: sample-spring-cloud-svc-release
-      passed: [promote-to-uat]
-    - get: sample-spring-cloud-svc-repo
-      passed: [promote-to-uat]
-  - task: deploy-to-prod
-    config:
-      image_resource:
-        type: docker-image
-        source:
-          repository: datianshi/cf-cli
-      platform: linux
-      inputs:
-        - name: sample-spring-cloud-svc-repo
-        - name: sample-spring-cloud-svc-release
-      run:
-        path: /bin/bash
-        args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/cf-deployment.sh"]
-      params:
-        API_ENDPOINT: {{api-endpoint}}
-        USERNAME: {{cf-username}}
-        PASSWORD: {{cf-password}}
-        ORG: {{cf-org}}
-        SPACE: {{cf-space-prod}}
-        HOST: {{host-prod}}
+  - name: bump-version
+    public: true
+    plan:
+      - aggregate:
+        - get:  repo-master
+          passed: [ tag-master ]
+          trigger: true
+        - get:  repo
+          resource: repo-release
+        - get: version
+          params: {bump: minor}
+        - get: m2
+      - task: bump-to-next-develop-version
+        file: repo/ci/tasks/bump-to-next-develop-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: repo
+        resource: repo-release
+        params:
+          repository: out
+      - put: version
+        params: {file: version/number}
+
+  - name: merge-release-to-develop
+    public: true
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-develop
+        - get: repo-release
+          passed: [ bump-version ]
+          trigger: true
+      - task: merge-release-to-develop
+        file: repo-release/ci/tasks/merge-release-branch.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: repo
+        resource: repo-develop
+        params:
+          repository: out
+
+  - name: deploy-prod
+    serial: true
+    public: false
+    plan:
+      - aggregate:
+        - get: m2
+        - get:  repo
+          resource: repo-master
+          passed: [ tag-master ]
+          trigger: true
+      - task: build
+        file: repo/ci/tasks/build.yml
+      - put: cf-prod
+        params:
+          manifest: repo/manifest.yml
+          path: output/demo.jar
+          current_app_name: sample-spring-cloud-svc-ci
+
+  # - name: init-m2
+  #   plan:
+  #     - get: repo
+  #       resource: repo-release
+  #     - task: build-m2
+  #       config:
+  #         platform: linux
+  #         image_resource:
+  #           type: docker-image
+  #           source:
+  #             repository: java
+  #             tag: 8-jdk-alpine
+  #         inputs:
+  #           - name: repo
+  #         outputs:
+  #           - name: to-push
+  #         run:
+  #           path: sh
+  #           args:
+  #           - repo/ci/tasks/m2.sh
+  #           - init
+  #     - put: m2
+  #       params:
+  #         import_file: to-push/rootfs.tar
+  #
+  # - name: update-m2
+  #   plan:
+  #     - get: repo
+  #       resource: repo-release
+  #     - get: m2
+  #     - task: build-m2
+  #       config:
+  #         platform: linux
+  #         image_resource:
+  #           type: docker-image
+  #           source:
+  #             repository: java
+  #             tag: 8-jdk-alpine
+  #         inputs:
+  #           - name: repo
+  #           - name: m2
+  #         outputs:
+  #           - name: to-push
+  #         run:
+  #           path: sh
+  #           args:
+  #           - repo/ci/tasks/m2.sh
+  #     - put: m2
+  #       params:
+  #         import_file: to-push/rootfs.tar

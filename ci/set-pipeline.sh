@@ -1,3 +1,3 @@
 #!/bin/sh
 
-echo y | fly -t home sp -p demo -c pipeline-demo.yml -l credentials.yml
+echo y | fly -t home sp -p demo -c pipeline.yml -l credentials.yml

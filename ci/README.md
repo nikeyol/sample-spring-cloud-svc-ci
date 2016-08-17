@@ -76,7 +76,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
     Example:
     ```
-    api-endpoint: api.10.65.192.249.xip.io
+    cf-api: api.10.65.192.249.xip.io
     cf-username: admin
     cf-password: admin
     cf-org: demo
