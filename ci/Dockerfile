@@ -1,7 +1,13 @@
-FROM     ubuntu:14.04
-MAINTAINER Mark Alston "malston@pivotal.io"
+FROM     java:8-jdk-alpine
+MAINTAINER Mark Alston <malston@pivotal.io>
 
-RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get install -y openjdk-8-jdk
-RUN apt-get -y install gradle
+ARG GRADLE_VERSION=2.13
+
+WORKDIR /usr/bin
+RUN curl -sLO https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip && \
+  unzip gradle-${GRADLE_VERSION}-all.zip && \
+  ln -s gradle-${GRADLE_VERSION} gradle && \
+  rm gradle-${GRADLE_VERSION}-all.zip
+
+ENV GRADLE_HOME /usr/bin/gradle
+ENV PATH $PATH:$GRADLE_HOME/bin
