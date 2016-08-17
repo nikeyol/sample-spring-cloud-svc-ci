@@ -3,5 +3,5 @@ set -e
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
 cd repo
-./gradlew --full-stacktrace --parallel --no-daemon assemble
+gradle --full-stacktrace --parallel --no-daemon assemble -Dmaven.repo.local=../m2/rootfs/opt/m2
 mv build/libs/sample-spring-cloud-svc-ci.jar ../build/sample-spring-cloud-svc-ci.jar
