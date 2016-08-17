@@ -26,10 +26,11 @@ resources:
   - name: version
     type: semver
     source:
-      bucket: sample-spring-cloud-svc-pipeline-artifacts
-      key: current-version
-      access_key_id: {{s3-access-key-id}}
-      secret_access_key: {{s3-secret-access-key}}
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: version
+      private_key: {{github-private-key}}
+      file: version
+      driver: git
       initial_version: 1.0.0
 
   - name: cf-prod
@@ -87,13 +88,12 @@ jobs:
             type: docker-image
             source:
               repository: java
-              tag: 8-jdk-alpine
           inputs:
             - name: repo
             - name: m2
           run:
             path: /bin/bash
-            args: ["-c", "sample-spring-cloud-svc-repo/ci/tasks/unit.sh"]
+            args: ["-c", "repo/ci/tasks/unit.sh"]
 
   - name: deploy-develop
     serial: true
@@ -112,7 +112,6 @@ jobs:
             type: docker-image
             source:
               repository: java
-              tag: 8-jdk-alpine
           inputs:
             - name: repo
             - name: m2
@@ -120,7 +119,7 @@ jobs:
             - name: output
           run:
             path: /bin/bash
-            args: ["-c", "repo/ci/tasks/build-artifact.sh"]
+            args: ["-c", "repo/ci/tasks/build.sh"]
           params:
             _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-dev
@@ -139,7 +138,18 @@ jobs:
           trigger: true
         - get: m2
       - task: unit
-        file: repo/ci/tasks/unit.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+          inputs:
+            - name: repo
+            - name: m2
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/unit.sh"]
 
   - name: deploy-staging
     serial: true
@@ -152,11 +162,26 @@ jobs:
           passed: [ test-release ]
           trigger: true
       - task: build
-        file: repo/ci/tasks/build.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+          inputs:
+            - name: repo
+            - name: m2
+          outputs:
+            - name: output
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/build.sh"]
+          params:
+            _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
         params:
           manifest: repo/manifest-staging.yml
-          path: output/demo.jar
+          path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci-staging
 
   - name: merge-release-to-master
@@ -168,7 +193,21 @@ jobs:
         - get: repo-release
           passed: [ test-release ]
       - task: merge-release-to-master
-        file: repo-release/ci/tasks/merge-release-branch.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: getourneau/alpine-bash-git
+          inputs:
+            - name: repo
+            - name: repo-release
+          outputs:
+            - name: out
+          run:
+            path: /bin/bash
+            args:
+            - repo-release/ci/tasks/merge-release-branch.sh
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -189,7 +228,18 @@ jobs:
           trigger: true
         - get: m2
       - task: unit
-        file: repo/ci/tasks/unit.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+          inputs:
+            - name: repo
+            - name: m2
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/unit.sh"]
 
   - name: tag-master
     public: true
@@ -203,7 +253,24 @@ jobs:
         - get: version
         - get: m2
       - task: bump-to-release-version
-        file: repo-release/ci/tasks/bump-to-release-version.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk
+          inputs:
+            - name: version
+            - name: repo
+            - name: repo-release
+            - name: m2
+          outputs:
+            - name: out
+          run:
+            path: /bin/bash
+            args:
+              - repo-release/ci/tasks/bump-to-release-version.sh
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -226,7 +293,24 @@ jobs:
           params: {bump: minor}
         - get: m2
       - task: bump-to-next-develop-version
-        file: repo/ci/tasks/bump-to-next-develop-version.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk
+          inputs:
+            - name: version
+            - name: repo
+            - name: repo-master
+            - name: m2
+          outputs:
+            - name: out
+          run:
+            path: /bin/bash
+            args:
+              - repo/ci/tasks/bump-to-next-develop-version.sh
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -247,7 +331,21 @@ jobs:
           passed: [ bump-version ]
           trigger: true
       - task: merge-release-to-develop
-        file: repo-release/ci/tasks/merge-release-branch.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: getourneau/alpine-bash-git
+          inputs:
+            - name: repo
+            - name: repo-release
+          outputs:
+            - name: out
+          run:
+            path: /bin/bash
+            args:
+            - repo-release/ci/tasks/merge-release-branch.sh
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -267,11 +365,26 @@ jobs:
           passed: [ tag-master ]
           trigger: true
       - task: build
-        file: repo/ci/tasks/build.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+          inputs:
+            - name: repo
+            - name: m2
+          outputs:
+            - name: output
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/build.sh"]
+          params:
+            _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-prod
         params:
           manifest: repo/manifest.yml
-          path: output/demo.jar
+          path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci
 
   # - name: init-m2

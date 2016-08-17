@@ -1,5 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -e
 
+export GRADLE_OPTS=-Dorg.gradle.native=false
 cd repo
-./mvnw package -Dmaven.test.skip=true -Dmaven.repo.local=../m2/rootfs/opt/m2
-mv target/*.jar ../output/demo.jar
+./gradlew --full-stacktrace --parallel --no-daemon assemble
+mv build/libs/sample-spring-cloud-svc-ci-*.jar ../build/sample-spring-cloud-svc-ci.jar
