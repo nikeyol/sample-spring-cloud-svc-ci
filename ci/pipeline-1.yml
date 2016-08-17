@@ -116,7 +116,7 @@ jobs:
             - name: repo
             - name: m2
           outputs:
-            - name: output
+            - name: build
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/build.sh"]
@@ -172,7 +172,7 @@ jobs:
             - name: repo
             - name: m2
           outputs:
-            - name: output
+            - name: build
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/build.sh"]
