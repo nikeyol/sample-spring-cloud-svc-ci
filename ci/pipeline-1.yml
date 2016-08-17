@@ -180,7 +180,7 @@ jobs:
             _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
         params:
-          manifest: repo/manifest-staging.yml
+          manifest: repo/manifest-stg.yml
           path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci-staging
 
@@ -223,7 +223,7 @@ jobs:
       - aggregate:
         - get: repo
           resource: repo-master
-          # comment out bellow to support hotfix
+          # comment out below to support hotfix
           passed: [ merge-release-to-master ]
           trigger: true
         - get: m2
