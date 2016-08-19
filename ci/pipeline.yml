@@ -9,6 +9,7 @@ groups:
     - test-release
     - deploy-staging
     - sonar
+    - acceptance
 - name: production
   jobs:
     - merge-release-to-master
@@ -86,10 +87,7 @@ resources:
   - name: m2
     type: docker-image
     source:
-      repository: making/m2
-      # username: {-{docker-username}}
-      # password: {-{docker-password}}
-      # email: {-{docker-email}}
+      repository: malston/m2
 
 jobs:
   - name: test-develop
@@ -406,6 +404,28 @@ jobs:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci
+
+  - name: acceptance
+    plan:
+    - aggregate:
+      - get: repo
+        resource: repo-release
+        passed: [deploy-staging]
+        trigger: true
+    - task: cats
+      config:
+        image_resource:
+          type: docker-image
+          source:
+            repository: malston/gradle-java-8
+        platform: linux
+        inputs:
+          - name: repo
+        run:
+          path: /bin/bash
+          args: ["-c", "repo/ci/tasks/cats.sh"]
+        params:
+          URL: {{test-url}}
 
   - name: sonar
     plan:

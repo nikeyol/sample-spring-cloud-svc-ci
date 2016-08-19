@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-get_code="curl -I $URL 2>/dev/null | head -n 1 | cut -d$' ' -f2"
-status_code=`eval $get_code`
-if [ "$status_code" != "200" ]
-then
-  echo "Expect status code from $URL as 200, but got $status_code"
-  exit 1
-fi
+export GRADLE_OPTS=-Dorg.gradle.native=false
+cd repo
+./gradlew --full-stacktrace --parallel --no-daemon cfAcceptanceTest -Dmaven.repo.local=../m2/rootfs/opt/m2
