@@ -1,0 +1,68 @@
+resources:
+  - name: repo-release
+    type: git
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: release
+      private_key: {{github-private-key}}
+    check_every: 10s # for demo
+
+  - name: m2
+    type: docker-image
+    source:
+      repository: malston/m2
+      email: {{docker-hub-email}}
+      username: {{docker-hub-username}}
+      password: {{docker-hub-password}}
+
+jobs:
+  - name: init-m2
+    plan:
+      - get: repo
+        resource: repo-release
+      - task: build-m2
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine
+          inputs:
+            - name: repo
+          outputs:
+            - name: to-push
+          run:
+            path: sh
+            args:
+            - repo/ci/tasks/m2.sh
+            - init
+      - put: m2
+        params:
+          import_file: to-push/rootfs.tar
+
+  - name: update-m2
+    plan:
+      - get: repo
+        resource: repo-release
+      - get: m2
+      - task: build-m2
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine
+          inputs:
+            - name: repo
+            - name: m2
+          outputs:
+            - name: to-push
+          run:
+            path: sh
+            args:
+            - repo/ci/tasks/m2.sh
+      - put: m2
+        params:
+          import_file: to-push/rootfs.tar

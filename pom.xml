@@ -140,7 +140,7 @@
                </executions>
                <configuration>
                   <serverId>nexus</serverId>
-                  <nexusUrl>http://192.168.99.102:8081/</nexusUrl>
+                  <nexusUrl>http://192.168.99.101:8081/</nexusUrl>
                   <skipStaging>true</skipStaging>
                </configuration>
             </plugin>
@@ -232,15 +232,15 @@
     <distributionManagement>
         <repository>
             <id>nexus-releases</id>
-            <url>http://192.168.99.102:8081/content/repositories/releases</url>
+            <url>http://192.168.99.101:8081/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>nexus-snapshots</id>
-            <url>http://192.168.99.102:8081/content/repositories/snapshots</url>
+            <url>http://192.168.99.101:8081/content/repositories/snapshots</url>
         </snapshotRepository>
         <site>
            <id>sonar</id>
-           <url>http://192.168.99.102:9000</url>
+           <url>http://192.168.99.101:9000</url>
         </site>
     </distributionManagement>
 </project>

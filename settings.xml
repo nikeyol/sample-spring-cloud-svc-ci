@@ -2,6 +2,7 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <localRepository>.m2/repository</localRepository>
 	<servers>
 		<server>
 			<id>nexus-snapshots</id>
@@ -27,7 +28,7 @@
         <sonar.jdbc.username>user</sonar.jdbc.username>
         <sonar.jdbc.password>password</sonar.jdbc.password>
         -->
-        <sonar.host.url>http://192.168.99.102:9000</sonar.host.url>
+        <sonar.host.url>http://192.168.99.101:9000</sonar.host.url>
       </properties>
     </profile>
   </profiles>
