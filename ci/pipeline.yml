@@ -10,6 +10,7 @@ groups:
     - deploy-staging
     - sonar
     - acceptance
+    - smoke
 - name: production
   jobs:
     - merge-release-to-master
@@ -88,6 +89,14 @@ resources:
     type: docker-image
     source:
       repository: malston/m2
+
+  - name: release-artifact
+    type: s3
+    source:
+      bucket: sample-spring-cloud-svc-pipeline-artifacts
+      regexp: sample-spring-cloud-svc-ci-(.*).jar
+      access_key_id: {{s3-access-key-id}}
+      secret_access_key: {{s3-secret-access-key}}
 
 jobs:
   - name: test-develop
@@ -377,6 +386,7 @@ jobs:
     public: false
     plan:
       - aggregate:
+        - get: version
         - get: m2
         - get:  repo
           resource: repo-master
@@ -396,7 +406,7 @@ jobs:
             - name: build
           run:
             path: /bin/bash
-            args: ["-c", "repo/ci/tasks/build.sh"]
+            args: ["-c", "repo/ci/tasks/build-rc.sh"]
           params:
             _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-prod
@@ -404,6 +414,9 @@ jobs:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci
+      - put: release-artifact
+        params:
+          file: build/sample-spring-cloud-svc-ci-*.jar
 
   - name: acceptance
     plan:
