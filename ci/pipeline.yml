@@ -194,6 +194,7 @@ jobs:
             source:
               repository: malston/gradle-java-8
           inputs:
+            - name: version
             - name: repo
           outputs:
             - name: build
@@ -393,6 +394,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
+            - name: version
           outputs:
             - name: build
           run:
