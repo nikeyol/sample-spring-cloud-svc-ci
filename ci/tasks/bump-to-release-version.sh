@@ -2,6 +2,7 @@
 
 VERSION=`cat version/number`
 MESSAGE="[Concourse CI] Release $VERSION"
+export M2_HOME=../m2/rootfs/opt/m2
 
 cd out
 shopt -s dotglob

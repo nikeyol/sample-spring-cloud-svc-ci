@@ -2,6 +2,7 @@
 
 VERSION=`cat version/number`-SNAPSHOT
 MESSAGE="[Concourse CI] Bump to Next Development Version ($VERSION)"
+export M2_HOME=../m2/rootfs/opt/m2
 
 cd out
 shopt -s dotglob

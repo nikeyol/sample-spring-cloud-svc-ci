@@ -2,6 +2,7 @@
 set -e
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
+export M2_HOME=../m2/rootfs/opt/m2
 cd repo
 
 if [ "$2" == "acceptance" ]; then
