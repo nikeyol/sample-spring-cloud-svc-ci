@@ -101,12 +101,18 @@ resources:
       access_key_id: {{s3-access-key-id}}
       secret_access_key: {{s3-secret-access-key}}
 
+  - name: m2
+    type: docker-image
+    source:
+      repository: malston/sample-spring-cloud-svc-ci-m2-cache
+
 jobs:
   - name: test-develop
     serial: true
     public: true
     plan:
       - aggregate:
+        - get: m2
         - get: repo
           resource: repo-develop
           trigger: true
@@ -119,6 +125,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
+            - name: m2
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -128,7 +135,8 @@ jobs:
     public: false
     plan:
       - aggregate:
-        - get:  repo
+        - get: m2
+        - get: repo
           resource: repo-develop
           passed: [ test-develop ]
           trigger: true
@@ -141,6 +149,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
+            - name: m2
           outputs:
             - name: build
           run:
@@ -159,6 +168,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: m2
         - get: repo
           resource: repo-release
           trigger: true
@@ -171,6 +181,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
+            - name: m2
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -180,6 +191,7 @@ jobs:
     public: false
     plan:
       - aggregate:
+        - get: m2
         - get: version
           params: {pre: rc}
         - get:  repo
@@ -196,6 +208,7 @@ jobs:
           inputs:
             - name: version
             - name: repo
+            - name: m2
           outputs:
             - name: build
           run:
@@ -246,6 +259,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: m2
         - get: repo
           resource: repo-master
           # comment out below to support hotfix
@@ -260,6 +274,7 @@ jobs:
               repository: java
           inputs:
             - name: repo
+            - name: m2
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -268,6 +283,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: m2
         - get:  repo
           resource: repo-master
           passed: [ test-master ]
@@ -287,6 +303,7 @@ jobs:
             - name: version
             - name: repo
             - name: repo-release
+            - name: m2
           outputs:
             - name: out
           run:
@@ -307,6 +324,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: m2
         - get:  repo-master
           passed: [ tag-master ]
           trigger: true
@@ -326,6 +344,7 @@ jobs:
             - name: version
             - name: repo
             - name: repo-master
+            - name: m2
           outputs:
             - name: out
           run:
@@ -379,6 +398,7 @@ jobs:
     public: false
     plan:
       - aggregate:
+        - get: m2
         - get: version
           params: {pre: final}
         - get:  repo
@@ -395,6 +415,7 @@ jobs:
           inputs:
             - name: repo
             - name: version
+            - name: m2
           outputs:
             - name: build
           run:
@@ -413,68 +434,75 @@ jobs:
 
   - name: acceptance
     plan:
-    - aggregate:
-      - get: repo
-        resource: repo-release
-        passed: [deploy-staging]
-        trigger: true
-    - task: cats
-      config:
-        image_resource:
-          type: docker-image
-          source:
-            repository: malston/gradle-java-8
-        platform: linux
-        inputs:
-          - name: repo
-        run:
-          path: /bin/bash
-          args: ["-c", "repo/ci/tasks/cats.sh", "acceptance"]
-        params:
-          URL: {{test-url}}
+      - aggregate:
+        - get: m2
+        - get: repo
+          resource: repo-release
+          passed: [deploy-staging]
+          trigger: true
+      - task: cats
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: malston/gradle-java-8
+          platform: linux
+          inputs:
+            - name: repo
+            - name: m2
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/cats.sh", "acceptance"]
+          params:
+            URL: {{test-url}}
 
   - name: smoke
     plan:
-    - aggregate:
-      - get: repo
-        resource: repo-release
-        passed: [deploy-staging]
-        trigger: true
-    - task: cats
-      config:
-        image_resource:
-          type: docker-image
-          source:
-            repository: malston/gradle-java-8
-        platform: linux
-        inputs:
-          - name: repo
-        run:
-          path: /bin/bash
-          args: ["-c", "repo/ci/tasks/cats.sh", "smoke"]
-        params:
-          URL: {{test-url}}
+      - aggregate:
+        - get: m2
+        - get: repo
+          resource: repo-release
+          passed: [deploy-staging]
+          trigger: true
+      - task: cats
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: malston/gradle-java-8
+          platform: linux
+          inputs:
+            - name: repo
+            - name: m2
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/cats.sh", "smoke"]
+          params:
+            URL: {{test-url}}
 
   - name: sonar
     plan:
-    - get: repo
-      resource: repo-release
-      passed: [ test-release ]
-      trigger: true
-    - task: publish-quality-metrics
-      config:
-        image_resource:
-          type: docker-image
-          source:
-            repository: malston/gradle-java-8
-        platform: linux
-        inputs:
-          - name: repo
-        run:
-          path: /bin/bash
-          args: ["-c", "repo/ci/tasks/sonar.sh"]
-        params:
-          SONAR_URL: {{sonar-url}}
+      - aggregate:
+        - get: m2
+        - get: repo
+          resource: repo-release
+          passed: [ test-release ]
+          trigger: true
+        - task: publish-quality-metrics
+          config:
+            image_resource:
+              type: docker-image
+              source:
+                repository: malston/gradle-java-8
+            platform: linux
+            inputs:
+              - name: repo
+              - name: m2
+            run:
+              path: /bin/bash
+              args: ["-c", "repo/ci/tasks/sonar.sh"]
+            params:
+              SONAR_URL: {{sonar-url}}
 
   - name: major
     serial_groups: [version]
