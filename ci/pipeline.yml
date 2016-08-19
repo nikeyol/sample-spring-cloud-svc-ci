@@ -148,15 +148,15 @@ jobs:
             source:
               repository: malston/gradle-java-8
           inputs:
-            - name: repo
             - name: m2
+            - name: repo
           outputs:
             - name: build
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/build.sh"]
           params:
-            _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-dev
         params:
           manifest: repo/manifest-dev.yml
@@ -215,7 +215,7 @@ jobs:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/build-rc.sh"]
           params:
-            _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
         params:
           manifest: repo/manifest-stg.yml
@@ -422,7 +422,7 @@ jobs:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/build-rc.sh"]
           params:
-            _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-prod
         params:
           manifest: repo/manifest.yml
