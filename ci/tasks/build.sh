@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
-export M2_HOME=repo
+export M2_HOME=./repo
 
 mkdir -p ${M2_HOME}/conf
 cp repo/settings.xml ${M2_HOME}/conf
