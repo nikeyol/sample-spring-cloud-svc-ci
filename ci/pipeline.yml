@@ -90,7 +90,15 @@ resources:
     source:
       repository: malston/m2
 
-  - name: release-artifact
+  - name: release-candidate
+    type: s3
+    source:
+      bucket: sample-spring-cloud-svc-pipeline-artifacts
+      regexp: sample-spring-cloud-svc-ci-(.*).jar
+      access_key_id: {{s3-access-key-id}}
+      secret_access_key: {{s3-secret-access-key}}
+
+  - name: release-final
     type: s3
     source:
       bucket: sample-spring-cloud-svc-pipeline-artifacts
@@ -183,12 +191,14 @@ jobs:
     public: false
     plan:
       - aggregate:
+        - get: version
+          params: {pre: rc}
         - get: m2
         - get:  repo
           resource: repo-release
           passed: [ test-release ]
           trigger: true
-      - task: build
+      - task: build-rc
         config:
           platform: linux
           image_resource:
@@ -202,7 +212,7 @@ jobs:
             - name: build
           run:
             path: /bin/bash
-            args: ["-c", "repo/ci/tasks/build.sh"]
+            args: ["-c", "repo/ci/tasks/build-rc.sh"]
           params:
             _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
@@ -278,6 +288,7 @@ jobs:
           trigger: true
         - get: repo-release
         - get: version
+          params: {bump: final}
         - get: m2
       - task: bump-to-release-version
         config:
@@ -308,6 +319,7 @@ jobs:
           tag: version/number
 
   - name: bump-version
+    serial_groups: [version]
     public: true
     plan:
       - aggregate:
@@ -382,17 +394,17 @@ jobs:
           repository: out
 
   - name: deploy-prod
-    serial: true
     public: false
     plan:
       - aggregate:
         - get: version
+          params: {pre: final}
         - get: m2
         - get:  repo
           resource: repo-master
           passed: [ tag-master ]
           trigger: true
-      - task: build
+      - task: build-final
         config:
           platform: linux
           image_resource:
@@ -414,7 +426,7 @@ jobs:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci.jar
           current_app_name: sample-spring-cloud-svc-ci
-      - put: release-artifact
+      - put: release-candidate
         params:
           file: build/sample-spring-cloud-svc-ci-*.jar
 
@@ -482,3 +494,21 @@ jobs:
           args: ["-c", "repo/ci/tasks/sonar.sh"]
         params:
           SONAR_URL: {{sonar-url}}
+
+  - name: major
+    serial_groups: [version]
+    plan:
+      - put: version
+        params: {bump: major}
+
+  - name: minor
+    serial_groups: [version]
+    plan:
+      - put: version
+        params: {bump: minor}
+
+  - name: patch
+    serial_groups: [version]
+    plan:
+      - put: version
+        params: {bump: patch}
