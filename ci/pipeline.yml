@@ -413,8 +413,8 @@ jobs:
             source:
               repository: malston/gradle-java-8
           inputs:
-            - name: repo
             - name: version
+            - name: repo
             - name: m2
           outputs:
             - name: build
