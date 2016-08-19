@@ -2,7 +2,8 @@
 set -ex
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
-export M2_HOME=./repo
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export M2_HOME=$MY_DIR/repo
 
 mkdir -p ${M2_HOME}/conf
 cp repo/settings.xml ${M2_HOME}/conf
