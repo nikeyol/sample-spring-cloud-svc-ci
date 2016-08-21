@@ -10,7 +10,7 @@ cp repo/settings.xml $M2_HOME/conf
 export GRADLE_USER_HOME=$M2_HOME
 echo "Gradle Home: ${GRADLE_USER_HOME}"
 mkdir -p $GRADLE_USER_HOME/caches/modules-2/files-2.1
-cp -R $M2_HOME/../m2/rootfs/opt/m2/ $GRADLE_USER_HOME/caches/modules-2/files-2.1/
+cp -R $M2_HOME/../m2/rootfs/opt/m2/. $GRADLE_USER_HOME/caches/modules-2/files-2.1/
 
 cd repo
 gradle --full-stacktrace --parallel --no-daemon assemble
