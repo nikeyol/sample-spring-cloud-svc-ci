@@ -7,7 +7,7 @@ export M2_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 mkdir $M2_HOME/conf
 cp repo/settings.xml $M2_HOME/conf
 
-export GRADLE_USER_HOME=$M2_HOME
+export GRADLE_USER_HOME=$M2_HOME/.gradle
 echo "Gradle Home: ${GRADLE_USER_HOME}"
 mkdir -p $GRADLE_USER_HOME/caches/modules-2/files-2.1
 cp -R $M2_HOME/../m2/rootfs/opt/m2/. $GRADLE_USER_HOME/caches/modules-2/files-2.1/
