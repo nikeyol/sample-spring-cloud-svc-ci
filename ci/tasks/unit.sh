@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
 export M2_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 
-mkdir $M2_HOME/conf
-cp repo/settings.xml $M2_HOME/conf
+# mkdir $M2_HOME/conf
+# cp repo/settings.xml $M2_HOME/conf
 
 export GRADLE_USER_HOME=$M2_HOME/.gradle
 echo "Gradle Home: ${GRADLE_USER_HOME}"
