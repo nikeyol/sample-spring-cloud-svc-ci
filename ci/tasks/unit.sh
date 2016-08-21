@@ -13,4 +13,4 @@ mkdir -p $GRADLE_USER_HOME/caches/modules-2/files-2.1
 cp -R $M2_HOME/../m2/rootfs/opt/m2/. $GRADLE_USER_HOME/caches/modules-2/files-2.1/
 
 cd repo
-gradle --full-stacktrace --parallel --no-daemon test
+./gradlew --full-stacktrace --parallel --no-daemon test --project-cache-dir ${GRADLE_USER_HOME}
