@@ -1,0 +1,68 @@
+resources:
+  - name: repo-release
+    type: git
+    source:
+      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: release
+      private_key: {{github-private-key}}
+    check_every: 10s # for demo
+
+  - name: gradle-cache
+    type: docker-image
+    source:
+      repository: malston/sample-spring-cloud-svc-ci-gradle-cache-cache
+      email: {{docker-hub-email}}
+      username: {{docker-hub-username}}
+      password: {{docker-hub-password}}
+
+jobs:
+  - name: init-gradle-cache
+    plan:
+      - get: repo
+        resource: repo-release
+      - task: build-gradle-cache
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine
+          inputs:
+            - name: repo
+          outputs:
+            - name: to-push
+          run:
+            path: sh
+            args:
+            - repo/ci/tasks/gradle-cache.sh
+            - init
+      - put: gradle-cache
+        params:
+          import_file: to-push/rootfs.tar
+
+  - name: update-gradle-cache
+    plan:
+      - get: repo
+        resource: repo-release
+      - get: gradle-cache
+      - task: build-gradle-cache
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine
+          inputs:
+            - name: repo
+            - name: gradle-cache
+          outputs:
+            - name: to-push
+          run:
+            path: sh
+            args:
+            - repo/ci/tasks/gradle-cache.sh
+      - put: gradle-cache
+        params:
+          import_file: to-push/rootfs.tar
