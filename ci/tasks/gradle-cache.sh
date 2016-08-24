@@ -4,6 +4,8 @@ if [ "$1" == "init" ]; then
 	mkdir -p ../gradle/rootfs/opt/gradle
 fi
 
+ls -al ../gradle/rootfs/opt/gradle
+
 cd repo
 ./gradlew clean build --project-cache-dir ../gradle/rootfs/opt/gradle
 cd ../gradle
