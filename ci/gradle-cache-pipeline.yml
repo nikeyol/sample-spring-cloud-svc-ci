@@ -34,7 +34,9 @@ jobs:
             - name: to-push
           run:
             path: /bin/bash
-            args: ["-c", "repo/ci/tasks/gradle-cache.sh", "init"]
+            args:
+              - repo/ci/tasks/gradle-cache.sh
+              - init
       - put: gradle-cache
         params:
           import_file: to-push/rootfs.tar
@@ -59,7 +61,7 @@ jobs:
             - name: to-push
           run:
             path: /bin/bash
-            args: ["-c", "repo/ci/tasks/gradle-cache.sh"]
+              - repo/ci/tasks/gradle-cache.sh
       - put: gradle-cache
         params:
           import_file: to-push/rootfs.tar
