@@ -53,7 +53,7 @@ jobs:
             type: docker-image
             source:
               repository: java
-              tag: 8-jdk-alpine
+              tag: "8"
           inputs:
             - name: repo
             - name: gradle-cache
