@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+set -ex
 
 pwd
 if [ "$1" == "init" ]; then
