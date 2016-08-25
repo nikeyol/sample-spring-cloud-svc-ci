@@ -2,9 +2,12 @@
 set -ex
 
 export GRADLE_OPTS=-Dorg.gradle.native=false
-export REPO_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
-export GRADLE_USER_HOME=$REPO_HOME/../gradle
-echo "Gradle Home: ${GRADLE_USER_HOME}"
+export GRADLE_USER_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../../../gradle" && pwd )"
+echo "GRADLE_USER_HOME: ${GRADLE_USER_HOME}"
+ls -al $GRADLE_USER_HOME
+mv $GRADLE_USER_HOME/rootfs/2.13/ $GRADLE_USER_HOME/
+mv $GRADLE_USER_HOME/rootfs/caches/ $GRADLE_USER_HOME/
+mv $GRADLE_USER_HOME/rootfs/wrapper/ $GRADLE_USER_HOME/
 
 ls -al $GRADLE_USER_HOME
 
