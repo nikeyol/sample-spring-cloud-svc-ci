@@ -15,4 +15,4 @@ cd repo
 ./gradlew clean build --project-cache-dir $GRADLE_USER_HOME
 cd ..
 tar -C gradle -cf rootfs.tar .
-mv rootfs.tar ../to-push
+mv rootfs.tar to-push
