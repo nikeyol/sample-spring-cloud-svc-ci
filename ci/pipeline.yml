@@ -219,7 +219,7 @@ jobs:
       - put: cf-staging
         params:
           manifest: repo/manifest-stg.yml
-          path: build/sample-spring-cloud-svc-ci.jar
+          path: build/sample-spring-cloud-svc-ci-rc.*.jar
           current_app_name: sample-spring-cloud-svc-ci-staging
 
   - name: merge-release-to-master
