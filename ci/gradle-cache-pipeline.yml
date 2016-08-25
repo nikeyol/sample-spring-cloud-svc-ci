@@ -61,6 +61,7 @@ jobs:
             - name: to-push
           run:
             path: /bin/bash
+            args:
               - repo/ci/tasks/gradle-cache.sh
       - put: gradle-cache
         params:
