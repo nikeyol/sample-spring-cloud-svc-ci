@@ -3,7 +3,7 @@ resources:
     type: git
     source:
       uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
-      branch: release
+      branch: develop
       private_key: {{github-private-key}}
     check_every: 10s # for demo
 
@@ -27,16 +27,14 @@ jobs:
             type: docker-image
             source:
               repository: java
-              tag: 8-jdk-alpine
+              tag: "8"
           inputs:
             - name: repo
           outputs:
             - name: to-push
           run:
-            path: sh
-            args:
-            - repo/ci/tasks/gradle-cache.sh
-            - init
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/gradle-cache.sh", "init"]
       - put: gradle-cache
         params:
           import_file: to-push/rootfs.tar
@@ -60,9 +58,8 @@ jobs:
           outputs:
             - name: to-push
           run:
-            path: sh
-            args:
-            - repo/ci/tasks/gradle-cache.sh
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/gradle-cache.sh"]
       - put: gradle-cache
         params:
           import_file: to-push/rootfs.tar

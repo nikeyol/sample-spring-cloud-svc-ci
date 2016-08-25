@@ -104,7 +104,7 @@ resources:
   - name: m2
     type: docker-image
     source:
-      repository: malston/sample-spring-cloud-svc-ci-m2-cache
+      repository: malston/sample-spring-cloud-svc-ci-gradle-cache-cache
 
 jobs:
   - name: test-develop
