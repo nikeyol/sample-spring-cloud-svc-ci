@@ -12,7 +12,7 @@ if [ "$1" == "init" ]; then
 fi
 
 cd repo
-./gradlew --full-stacktrace --parallel --no-daemon clean build --project-cache-dir ${GRADLE_USER_HOME}
+./gradlew --full-stacktrace --parallel --no-daemon clean build test --project-cache-dir ${GRADLE_USER_HOME}
 cd ..
 tar -C gradle -cf rootfs.tar .
 mv rootfs.tar to-push
