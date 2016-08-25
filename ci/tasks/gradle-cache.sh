@@ -3,6 +3,8 @@ set -ex
 
 REPO_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 export GRADLE_USER_HOME=$REPO_HOME/../gradle
+export GRADLE_OPTS=-Dorg.gradle.native=false
+
 echo "Gradle Home: ${GRADLE_USER_HOME}"
 
 if [ "$1" == "init" ]; then
