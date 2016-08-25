@@ -101,7 +101,7 @@ resources:
       access_key_id: {{s3-access-key-id}}
       secret_access_key: {{s3-secret-access-key}}
 
-  - name: m2
+  - name: gradle
     type: docker-image
     source:
       repository: malston/sample-spring-cloud-svc-ci-gradle-cache-cache
@@ -112,7 +112,7 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-develop
           trigger: true
@@ -125,7 +125,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
-            - name: m2
+            - name: gradle
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -135,7 +135,7 @@ jobs:
     public: false
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-develop
           passed: [ test-develop ]
@@ -148,7 +148,7 @@ jobs:
             source:
               repository: malston/gradle-java-8
           inputs:
-            - name: m2
+            - name: gradle
             - name: repo
           outputs:
             - name: build
@@ -168,7 +168,7 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-release
           trigger: true
@@ -181,7 +181,7 @@ jobs:
               repository: malston/gradle-java-8
           inputs:
             - name: repo
-            - name: m2
+            - name: gradle
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -191,7 +191,7 @@ jobs:
     public: false
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: version
           params: {pre: rc}
         - get:  repo
@@ -208,7 +208,7 @@ jobs:
           inputs:
             - name: version
             - name: repo
-            - name: m2
+            - name: gradle
           outputs:
             - name: build
           run:
@@ -259,7 +259,7 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-master
           # comment out below to support hotfix
@@ -274,7 +274,7 @@ jobs:
               repository: java
           inputs:
             - name: repo
-            - name: m2
+            - name: gradle
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/unit.sh"]
@@ -283,7 +283,7 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get:  repo
           resource: repo-master
           passed: [ test-master ]
@@ -303,7 +303,7 @@ jobs:
             - name: version
             - name: repo
             - name: repo-release
-            - name: m2
+            - name: gradle
           outputs:
             - name: out
           run:
@@ -324,7 +324,7 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get:  repo-master
           passed: [ tag-master ]
           trigger: true
@@ -344,7 +344,7 @@ jobs:
             - name: version
             - name: repo
             - name: repo-master
-            - name: m2
+            - name: gradle
           outputs:
             - name: out
           run:
@@ -398,7 +398,7 @@ jobs:
     public: false
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: version
           params: {pre: final}
         - get:  repo
@@ -415,7 +415,7 @@ jobs:
           inputs:
             - name: version
             - name: repo
-            - name: m2
+            - name: gradle
           outputs:
             - name: build
           run:
@@ -435,7 +435,7 @@ jobs:
   - name: acceptance
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-release
           passed: [deploy-staging]
@@ -449,7 +449,7 @@ jobs:
           platform: linux
           inputs:
             - name: repo
-            - name: m2
+            - name: gradle
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/cats.sh", "acceptance"]
@@ -459,7 +459,7 @@ jobs:
   - name: smoke
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-release
           passed: [deploy-staging]
@@ -473,7 +473,7 @@ jobs:
           platform: linux
           inputs:
             - name: repo
-            - name: m2
+            - name: gradle
           run:
             path: /bin/bash
             args: ["-c", "repo/ci/tasks/cats.sh", "smoke"]
@@ -483,7 +483,7 @@ jobs:
   - name: sonar
     plan:
       - aggregate:
-        - get: m2
+        - get: gradle
         - get: repo
           resource: repo-release
           passed: [ test-release ]
@@ -497,7 +497,7 @@ jobs:
             platform: linux
             inputs:
               - name: repo
-              - name: m2
+              - name: gradle
             run:
               path: /bin/bash
               args: ["-c", "repo/ci/tasks/sonar.sh"]
