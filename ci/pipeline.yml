@@ -1,5 +1,20 @@
 ---
 groups:
+- name: all
+  jobs:
+    - test-develop
+    - deploy-develop
+    - test-release
+    - deploy-staging
+    - sonar
+    - acceptance
+    - smoke
+    - merge-release-to-master
+    - test-master
+    - tag-master
+    - bump-version
+    - deploy-prod
+    - merge-release-to-develop
 - name: development
   jobs:
     - test-develop
