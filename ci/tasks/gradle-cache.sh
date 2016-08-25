@@ -5,7 +5,7 @@ REPO_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 export GRADLE_USER_HOME=$REPO_HOME/../gradle
 echo "Gradle Home: ${GRADLE_USER_HOME}"
 
-if [ "$2" == "init" ]; then
+if [ "$1" == "init" ]; then
 	mkdir -p $GRADLE_USER_HOME
 fi
 
