@@ -20,7 +20,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 * Setup Concourse, Sonar, Nexus
 
   1. Use docker compose
-    ```console
+  ```console
     $ docker-compose -f docker-compose-sonar.yml up -d
     $ docker-compose -f docker-compose-sonar.yml up -d
     $ docker-compose -f docker-compose-nexus.yml up -d
@@ -28,7 +28,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
     $ export CONCOURSE_PASSWORD=changeme
     $ export CONCOURSE_LOGIN=concourse
     $ docker-compose up -d
-    ```
+  ```
 
 * Configure Concourse Pipeline
 
