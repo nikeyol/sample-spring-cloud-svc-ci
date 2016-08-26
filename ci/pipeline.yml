@@ -503,21 +503,21 @@ jobs:
           resource: repo-release
           passed: [ test-release ]
           trigger: true
-        - task: publish-quality-metrics
-          config:
-            image_resource:
-              type: docker-image
-              source:
-                repository: malston/gradle-java-8
-            platform: linux
-            inputs:
-              - name: repo
-              - name: gradle
-            run:
-              path: /bin/bash
-              args: ["-c", "repo/ci/tasks/sonar.sh"]
-            params:
-              SONAR_URL: {{sonar-url}}
+      - task: publish-quality-metrics
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: malston/gradle-java-8
+          platform: linux
+          inputs:
+            - name: repo
+            - name: gradle
+          run:
+            path: /bin/bash
+            args: ["-c", "repo/ci/tasks/sonar.sh"]
+          params:
+            SONAR_URL: {{sonar-url}}
 
   - name: major
     serial_groups: [version]
