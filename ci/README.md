@@ -11,8 +11,6 @@ This pipeline is based on the [presentation](http://www.slideshare.net/makingx/c
 
 ## How to replicate this pipeline in your env
 
-* [ Install a concourse environment and fly cli ](http://concourse.ci/getting-started.html)
-
 * Fork this github repo to your own github account, [ generate the key pair and add the public key to github ](https://help.github.com/articles/generating-ssh-keys), and save the private key (~/.ssh/concourse_demo_git)
 to pass to your pipeline configuration below.
 
@@ -21,8 +19,8 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
 * Setup Concourse, Sonar, Nexus
 
-  1. Use docker-compose
-    ``` console
+  1. Use docker compose
+    ```console
     $ docker-compose -f docker-compose-sonar.yml up -d
     $ docker-compose -f docker-compose-sonar.yml up -d
     $ docker-compose -f docker-compose-nexus.yml up -d
@@ -34,8 +32,13 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
 * Configure Concourse Pipeline
 
+  1. Download fly cli or synchronize
+    ```console
+    $ fly sync
+    ```
+
   1. Login to the concourse and create a target
-    ``` console
+    ```console
     $ fly login -c http://192.168.99.101:8080 -u concourse -p changeme -t demo
     ```
 
