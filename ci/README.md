@@ -1,57 +1,13 @@
 # Using Concourse
 
-![](images/pipeline.png)
+This pipeline is based on the [presentation](http://www.slideshare.net/makingx/concourse-ci-meetup-demo) and pipeline provided by [making](https://github.com/making/concourse-ci-demo):
 
-* [Concourse](http://councourse.ci)
-  * Build only once and deploy anywhere
-  * Every build is a release candidate
-  * Every build step runs inside a docker container mounted to garden linux cell
+![image](https://qiita-image-store.s3.amazonaws.com/0/1852/a560e677-2ee9-398b-4548-b64d93b87a75.png)
 
-## Resources
+## Pipeline Sequence
 
-Resources in concourse are implemented as docker images which contain implementations corresponding their types
+![image](/ci/images/sequence_diagram.png "Sequence Diagram")
 
-* sample-spring-cloud-svc-repo ([git-resource](https://github.com/concourse/git-resource)): A Git resource. Tracks the commits in a Git repository (e.g. [sample-spring-cloud-svc-ci](https://github.com/pivotalservices/sample-spring-cloud-svc-ci)).
-
-* sample-spring-cloud-svc-release (([S3-resource](https://github.com/concourse/S3-resource))) A bucket in S3 that stores an artifact (e.g. `build/libs/sample-spring-cloud-svc-ci-1.0.1.jar`). Objects are versioned by pattern-matching filenames to identify version numbers.
-
-* version ([semver-resource](https://github.com/concourse/semver-resource)): A resource for managing a version number. A file named `current-version` is created  in S3 to track the version (e.g. `1.0.1`).
-
-## Pipeline Progress
-
-### Check out resource
-
-### Unit test
-
-This step runs on a container with (gradle or maven) and java installed.
-Basically it just runs "gradle test" against the [sample-spring-cloud-svc-repo](https://github.com/pivotalservices/sample-spring-cloud-svc-ci).
-
-### Build artifact
-
-* sample-spring-cloud-svc-repo - Check out the same source version of this repo as unit step
-* version - Checkout the version file from S3
-* "gradle assemble" generates the war artifact
-* Push the artifact to the S3 resource as sample-spring-cloud-svc-release
-* Git tag on the sample-spring-cloud-svc-repo
-* Bump the version resource for the next usage
-
-### Deploy to `dev` space and execute smoke tests
-
-* Pull the binary from `sample-spring-cloud-svc-release`
-* Deploy to cloud foundry acceptance tests space
-* Run automated acceptance tests suite
-
-### Promote to `uat` space
-
-* Pull the binary from `sample-spring-cloud-svc-release`
-* Deploy to cloud foundry `uat` space
-* Wait for user acceptance tests
-
-### Manual deploy to `prod` space
-
-* Manually trigger the build when the operators are ready
-* Pull the binary from `sample-spring-cloud-svc-release`
-* Deploy to `prod`
 
 ## How to replicate this pipeline in your env
 
@@ -63,11 +19,24 @@ to pass to your pipeline configuration below.
 * Create an S3 bucket (e.g. `sample-spring-cloud-svc-pipeline-artifacts`)
 You'll need to rename this to something that isn't taken and update [pipeline.yml](pipeline.yml) to use that bucket instead.
 
-* Using `fly`
+* Setup Concourse, Sonar, Nexus
+
+  1. Use docker-compose
+    ``` console
+    $ docker-compose -f docker-compose-sonar.yml up -d
+    $ docker-compose -f docker-compose-sonar.yml up -d
+    $ docker-compose -f docker-compose-nexus.yml up -d
+    $ export CONCOURSE_EXTERNAL_URL=http://192.168.99.101:8080
+    $ export CONCOURSE_PASSWORD=changeme
+    $ export CONCOURSE_LOGIN=concourse
+    $ docker-compose up -d
+    ```
+
+* Configure Concourse Pipeline
 
   1. Login to the concourse and create a target
-    ```
-    fly --target demo login --concourse-url 'http://10.65.192.249:8080'  
+    ``` console
+    $ fly login -c http://192.168.99.101:8080 -u concourse -p changeme -t demo
     ```
 
   1. Configure the cloud foundry target environment in [pipeline.yml](pipeline.yml)
@@ -81,28 +50,20 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
     cf-password: admin
     cf-org: demo
     cf-space-dev: development
-    cf-space-uat: uat
+    cf-space-staging: staging
     cf-space-prod: production
     cf-space-test: test
-    host-dev: sample-spring-cloud-svc-dev
-    host-uat: sample-spring-cloud-svc-uat
-    host-prod: sample-spring-cloud-svc
-    host-test: sample-spring-cloud-svc-test
     ```
 
   1. Upload the pipeline configure
 
-    ```
-    fly -t demo set-pipeline -p pipeline sample-spring-cloud-svc-ci-pipeline \
-      -c ci/pipeline.yml \
-      -l ci/credentials.yml \
-      -v "git-private-key=$(cat ~/.ssh/concourse_demo_git)" \
-      -v s3-access-key-id={REPLACE_WITH_YOUR_S3_ACCESS_KEY_ID} \
-      -v s3-secret-access-key={REPLACE_WITH_YOUR_S3_SECRET_ACCESS_KEY}
+    ```console
+    $ cd ci
+    $ ./set-pipeline.sh
     ```
 
   1. Unpause the pipeline
 
-    ```
-    fly -t demo unpause-pipeline -p pipeline sample-spring-cloud-svc-ci-pipeline
+    ```console
+    $ fly -t demo up -p demo
     ```
