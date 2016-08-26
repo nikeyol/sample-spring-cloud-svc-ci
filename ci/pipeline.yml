@@ -441,7 +441,7 @@ jobs:
       - put: cf-prod
         params:
           manifest: repo/manifest.yml
-          path: build/sample-spring-cloud-svc-ci.jar
+          path: build/sample-spring-cloud-svc-ci-*.jar
           current_app_name: sample-spring-cloud-svc-ci
       - put: release-candidate
         params:
