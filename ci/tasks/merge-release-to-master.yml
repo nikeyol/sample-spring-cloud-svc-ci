@@ -1,0 +1,18 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: getourneau/alpine-bash-git
+inputs:
+  - name: repo
+  - name: repo-release
+outputs:
+  - name: out
+run:
+  path: /bin/bash
+  args:
+  - repo-release/ci/tasks/scripts/merge-release-branch.sh
+params:
+  GIT_EMAIL:
+  GIT_NAME:

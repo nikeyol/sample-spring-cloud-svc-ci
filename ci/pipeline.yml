@@ -132,18 +132,7 @@ jobs:
           resource: repo-develop
           trigger: true
       - task: unit
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/unit.sh"]
+        file: repo/ci/tasks/unit.yml
 
   - name: deploy-develop
     serial: true
@@ -156,22 +145,9 @@ jobs:
           passed: [ test-develop ]
           trigger: true
       - task: build
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          inputs:
-            - name: gradle
-            - name: repo
-          outputs:
-            - name: build
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/build.sh"]
-          params:
-            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+        file: repo/ci/tasks/build.yml
+        params:
+          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-dev
         params:
           manifest: repo/manifest-dev.yml
@@ -188,18 +164,7 @@ jobs:
           resource: repo-release
           trigger: true
       - task: unit
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/unit.sh"]
+        file: repo/ci/tasks/unit.yml
 
   - name: deploy-staging
     serial: true
@@ -214,23 +179,9 @@ jobs:
           passed: [ test-release ]
           trigger: true
       - task: build-rc
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          inputs:
-            - name: version
-            - name: repo
-            - name: gradle
-          outputs:
-            - name: build
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/build-rc.sh"]
-          params:
-            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+        file: repo/ci/tasks/build-rc.yml
+        params:
+          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
         params:
           manifest: repo/manifest-stg.yml
@@ -246,21 +197,7 @@ jobs:
         - get: repo-release
           passed: [ test-release ]
       - task: merge-release-to-master
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: getourneau/alpine-bash-git
-          inputs:
-            - name: repo
-            - name: repo-release
-          outputs:
-            - name: out
-          run:
-            path: /bin/bash
-            args:
-            - repo-release/ci/tasks/scripts/merge-release-branch.sh
+        file: repo/ci/tasks/merge-release-to-master.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -281,18 +218,7 @@ jobs:
           passed: [ merge-release-to-master ]
           trigger: true
       - task: unit
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: java
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/unit.sh"]
+        file: repo/ci/tasks/unit.yml
 
   - name: tag-master
     public: true
@@ -307,24 +233,7 @@ jobs:
         - get: version
           params: {bump: final}
       - task: bump-to-release-version
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: java
-              tag: 8-jdk
-          inputs:
-            - name: version
-            - name: repo
-            - name: repo-release
-            - name: gradle
-          outputs:
-            - name: out
-          run:
-            path: /bin/bash
-            args:
-              - repo-release/ci/tasks/scripts/bump-to-release-version.sh
+        file: repo/ci/tasks/bump-to-release-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -348,24 +257,7 @@ jobs:
         - get: version
           params: {bump: minor}
       - task: bump-to-next-develop-version
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: java
-              tag: 8-jdk
-          inputs:
-            - name: version
-            - name: repo
-            - name: repo-master
-            - name: gradle
-          outputs:
-            - name: out
-          run:
-            path: /bin/bash
-            args:
-              - repo/ci/tasks/scripts/bump-to-next-develop-version.sh
+        file: repo/ci/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -386,21 +278,7 @@ jobs:
           passed: [ bump-version ]
           trigger: true
       - task: merge-release-to-develop
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: getourneau/alpine-bash-git
-          inputs:
-            - name: repo
-            - name: repo-release
-          outputs:
-            - name: out
-          run:
-            path: /bin/bash
-            args:
-            - repo-release/ci/tasks/scripts/merge-release-branch.sh
+        file: repo/ci/tasks/merge-release-to-develop.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -421,23 +299,9 @@ jobs:
           passed: [ tag-master ]
           trigger: true
       - task: build-final
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          inputs:
-            - name: version
-            - name: repo
-            - name: gradle
-          outputs:
-            - name: build
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/build-rc.sh"]
-          params:
-            JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+        file: repo/ci/tasks/build-rc.yml
+        params:
+          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-prod
         params:
           manifest: repo/manifest.yml
@@ -456,20 +320,7 @@ jobs:
           passed: [deploy-staging]
           trigger: true
       - task: cats
-        config:
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          platform: linux
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/cats.sh", "acceptance"]
-          params:
-            URL: {{test-url}}
+        file: repo/ci/tasks/cats.yml
 
   - name: smoke
     plan:
@@ -480,20 +331,7 @@ jobs:
           passed: [deploy-staging]
           trigger: true
       - task: cats
-        config:
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          platform: linux
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/cats.sh", "smoke"]
-          params:
-            URL: {{test-url}}
+        file: repo/ci/tasks/smoke.yml
 
   - name: sonar
     plan:
@@ -504,20 +342,9 @@ jobs:
           passed: [ test-release ]
           trigger: true
       - task: publish-quality-metrics
-        config:
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          platform: linux
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/sonar.sh"]
-          params:
-            SONAR_URL: {{sonar-url}}
+        file: repo/ci/tasks/publish-quality-metrics.yml
+        params:
+          SONAR_URL: {{sonar-url}}
 
   - name: publish-artifact
     plan:
@@ -528,20 +355,9 @@ jobs:
           passed: [ smoke, acceptance ]
           trigger: true
       - task: publish-artifact
-        config:
-          image_resource:
-            type: docker-image
-            source:
-              repository: malston/gradle-java-8
-          platform: linux
-          inputs:
-            - name: repo
-            - name: gradle
-          run:
-            path: /bin/bash
-            args: ["-c", "repo/ci/tasks/scripts/upload-archives.sh"]
-          params:
-            NEXUS_URL: {{nexus-url}}
+        file: repo/ci/tasks/publish-artifact.yml
+        params:
+          NEXUS_URL: {{nexus-url}}
 
   - name: major
     serial_groups: [version]
