@@ -9,6 +9,7 @@ groups:
     - sonar
     - acceptance
     - smoke
+    - publish-artifact
     - merge-release-to-master
     - test-master
     - tag-master
@@ -26,6 +27,7 @@ groups:
     - sonar
     - acceptance
     - smoke
+    - publish-artifact
 - name: production
   jobs:
     - merge-release-to-master
