@@ -5,6 +5,7 @@ image_resource:
     repository: malston/gradle-java-8
 platform: linux
 inputs:
+  - name: version
   - name: repo
   - name: gradle
 run:
