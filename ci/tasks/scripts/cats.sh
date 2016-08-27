@@ -13,9 +13,9 @@ ls -al $GRADLE_USER_HOME
 
 cd repo
 
-if [ "$2" == "acceptance" ]; then
+if [ "$1" == "acceptance" ]; then
 	gradle --full-stacktrace --parallel --no-daemon cfAcceptanceTest
-elif [ "$2" == "smoke" ]; then
+elif [ "$1" == "smoke" ]; then
   gradle --full-stacktrace --parallel --no-daemon cfSmokeTest
 else
   echo "No tests run: options are 'acceptance' OR 'smoke'"
