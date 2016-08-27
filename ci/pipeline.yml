@@ -9,10 +9,11 @@ groups:
     - sonar
     - acceptance
     - smoke
-    - publish-artifact
+    - publish-rc
     - merge-release-to-master
     - test-master
     - tag-master
+    - publish-release
     - bump-version
     - deploy-prod
     - merge-release-to-develop
@@ -27,11 +28,12 @@ groups:
     - sonar
     - acceptance
     - smoke
-    - publish-artifact
+    - publish-rc
 - name: production
   jobs:
     - merge-release-to-master
     - test-master
+    - publish-release
     - tag-master
     - bump-version
     - deploy-prod
@@ -289,6 +291,20 @@ jobs:
         params:
           repository: out
 
+  - name: publish-release
+    plan:
+      - aggregate:
+        - get: version
+        - get: gradle
+        - get: repo
+          resource: repo-master
+          passed: [ tag-master ]
+          trigger: true
+      - task: publish-release
+        file: repo/ci/tasks/publish-artifact.yml
+        params:
+          NEXUS_URL: {{nexus-url}}
+
   - name: deploy-prod
     public: false
     plan:
@@ -298,7 +314,7 @@ jobs:
           params: {pre: final}
         - get:  repo
           resource: repo-master
-          passed: [ tag-master ]
+          passed: [ publish-release ]
           trigger: true
       - task: build-final
         file: repo/ci/tasks/build-rc.yml
@@ -348,16 +364,17 @@ jobs:
         params:
           SONAR_URL: {{sonar-url}}
 
-  - name: publish-artifact
+  - name: publish-rc
     plan:
       - aggregate:
         - get: version
+          params: {pre: rc}
         - get: gradle
         - get: repo
           resource: repo-release
           passed: [ smoke, acceptance ]
           trigger: true
-      - task: publish-artifact
+      - task: publish-rc
         file: repo/ci/tasks/publish-artifact.yml
         params:
           NEXUS_URL: {{nexus-url}}
