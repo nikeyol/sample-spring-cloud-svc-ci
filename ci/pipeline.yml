@@ -349,6 +349,7 @@ jobs:
   - name: publish-artifact
     plan:
       - aggregate:
+        - get: version
         - get: gradle
         - get: repo
           resource: repo-release

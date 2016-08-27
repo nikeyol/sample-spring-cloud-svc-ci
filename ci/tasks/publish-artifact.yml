@@ -11,4 +11,4 @@ run:
   path: /bin/bash
   args: ["-c", "repo/ci/tasks/scripts/upload-archives.sh"]
 params:
-  NEXUS_URL: 
+  NEXUS_URL:
