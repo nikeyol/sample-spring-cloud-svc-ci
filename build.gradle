@@ -71,8 +71,11 @@ dependencyManagement {
 uploadArchives {
 	repositories {
 		mavenDeployer {
-			repository(url: "http://192.168.99.101:8081/content/repositories/snapshots") {
+			repository(url: "http://192.168.99.101:8081/content/repositories/releases") {
 				authentication(userName: "admin", password: "admin123")
+			}
+			snapshotRepository(url: 'http://192.168.99.101:8081/content/repositories/snapshots') {
+				authentication(userName: 'admin', password: 'admin123');
 			}
 			pom.version = "${version}"
 			pom.artifactId = "sample-spring-cloud-svc-ci"
