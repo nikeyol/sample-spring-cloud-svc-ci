@@ -191,6 +191,9 @@ jobs:
           manifest: repo/manifest-stg.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
           current_app_name: sample-spring-cloud-svc-ci-staging
+      - put: release-candidate
+        params:
+          file: build/sample-spring-cloud-svc-ci-*.jar
 
   - name: merge-release-to-master
     public: true
@@ -325,9 +328,6 @@ jobs:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
           current_app_name: sample-spring-cloud-svc-ci
-      - put: release-candidate
-        params:
-          file: build/sample-spring-cloud-svc-ci-*.jar
 
   - name: acceptance-staging
     plan:
@@ -343,8 +343,8 @@ jobs:
           CF_API: {{cf-api}}
           CF_USER: {{cf-username}}
           CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-space-staging}}
-          CF_SPACE: {{cf-org}}
+          CF_ORG: {{cf-org}}
+          CF_SPACE: {{cf-space-staging}}
           CF_DOMAIN: {{cf-domain}}
           CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
 
@@ -362,8 +362,8 @@ jobs:
           CF_API: {{cf-api}}
           CF_USER: {{cf-username}}
           CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-space-staging}}
-          CF_SPACE: {{cf-org}}
+          CF_ORG: {{cf-org}}
+          CF_SPACE: {{cf-space-staging}}
           CF_DOMAIN: {{cf-domain}}
           CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
 
