@@ -48,7 +48,8 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
     Example:
     ```
-    cf-api: api.10.65.192.249.xip.io
+    cf-domain: local.pcfdev.io
+    cf-api: api.local.pcfdev.io
     cf-username: admin
     cf-password: admin
     cf-org: demo
@@ -69,4 +70,10 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
     ```console
     $ fly -t demo up -p demo
+    ```
+
+  1. Execute a task
+
+    ```console
+    $ CF_API=api.run.pivotal.io fly execute -c ci/tasks/smoke.yml -i gradle=gradle/ -i repo=.
     ```

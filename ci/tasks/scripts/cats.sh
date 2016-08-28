@@ -9,9 +9,11 @@ ls -al ${GRADLE_USER_HOME}
 cd repo
 
 if [ "$1" == "acceptance" ]; then
-	gradle --full-stacktrace --parallel --no-daemon cfAcceptanceTest
+	./gradlew --full-stacktrace --parallel --no-daemon cfAcceptanceTest -Pcf.ccHost=${CF_API} -Pcf.ccUser=${CF_USER} -Pcf.ccPassword=${CF_PASSWORD} -Pcf.org=${CF_ORG} -Pcf.space=${CF_SPACE} -Pcf.domain=${CF_DOMAIN} -Pcf.hostName=${CF_HOST_NAME}
 elif [ "$1" == "smoke" ]; then
-  gradle --full-stacktrace --parallel --no-daemon cfSmokeTest
+  ./gradlew --full-stacktrace --parallel --no-daemon cfSmokeTest -Pcf.ccHost=${CF_API} -Pcf.ccUser=${CF_USER} -Pcf.ccPassword=${CF_PASSWORD} -Pcf.org=${CF_ORG} -Pcf.space=${CF_SPACE} -Pcf.domain=${CF_DOMAIN} -Pcf.hostName=${CF_HOST_NAME}
+	Pcf.ccHost=${api}
 else
   echo "No tests run: options are 'acceptance' OR 'smoke'"
+	exit 1
 fi

@@ -7,7 +7,7 @@ groups:
     - test-release
     - deploy-staging
     - sonar
-    - acceptance
+    - acceptance-staging
     - smoke
     - publish-rc
     - merge-release-to-master
@@ -26,7 +26,7 @@ groups:
     - test-release
     - deploy-staging
     - sonar
-    - acceptance
+    - acceptance-staging
     - smoke
     - publish-rc
 - name: production
@@ -329,7 +329,7 @@ jobs:
         params:
           file: build/sample-spring-cloud-svc-ci-*.jar
 
-  - name: acceptance
+  - name: acceptance-staging
     plan:
       - aggregate:
         - get: gradle
@@ -339,6 +339,14 @@ jobs:
           trigger: true
       - task: cats
         file: repo/ci/tasks/cats.yml
+        params:
+          CF_API: {{cf-api}}
+          CF_USER: {{cf-username}}
+          CF_PASSWORD: {{cf-password}}
+          CF_ORG: {{cf-space-staging}}
+          CF_SPACE: {{cf-org}}
+          CF_DOMAIN: {{cf-domain}}
+          CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
 
   - name: smoke
     plan:
@@ -350,6 +358,14 @@ jobs:
           trigger: true
       - task: cats
         file: repo/ci/tasks/smoke.yml
+        params:
+          CF_API: {{cf-api}}
+          CF_USER: {{cf-username}}
+          CF_PASSWORD: {{cf-password}}
+          CF_ORG: {{cf-space-staging}}
+          CF_SPACE: {{cf-org}}
+          CF_DOMAIN: {{cf-domain}}
+          CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
 
   - name: sonar
     plan:

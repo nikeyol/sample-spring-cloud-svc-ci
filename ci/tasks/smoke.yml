@@ -9,4 +9,12 @@ inputs:
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/ci/tasks/scripts/cats.sh", "smoke"]
+  args: ["-c", "repo/ci/tasks/scripts/cats.sh smoke"]
+params:
+  CF_API:
+  CF_USER:
+  CF_PASSWORD:
+  CF_ORG:
+  CF_SPACE:
+  CF_DOMAIN:
+  CF_HOST_NAME:
