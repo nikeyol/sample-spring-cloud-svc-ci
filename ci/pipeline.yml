@@ -388,7 +388,7 @@ jobs:
         - get: gradle
         - get: repo
           resource: repo-release
-          passed: [ smoke, acceptance ]
+          passed: [ smoke, acceptance-staging ]
           trigger: true
       - task: publish-rc
         file: repo/ci/tasks/publish-artifact.yml
