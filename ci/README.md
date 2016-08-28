@@ -22,7 +22,6 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
   1. Use docker compose
   ```console
     $ docker-compose -f docker-compose-sonar.yml up -d
-    $ docker-compose -f docker-compose-sonar.yml up -d
     $ docker-compose -f docker-compose-nexus.yml up -d
     $ export CONCOURSE_EXTERNAL_URL=http://192.168.99.101:8080
     $ export CONCOURSE_PASSWORD=changeme
