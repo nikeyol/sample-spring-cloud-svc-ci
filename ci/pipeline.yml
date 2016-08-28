@@ -8,7 +8,7 @@ groups:
     - deploy-staging
     - sonar
     - acceptance-staging
-    - smoke
+    - smoke-staging
     - publish-rc
     - merge-release-to-master
     - test-master
@@ -27,7 +27,7 @@ groups:
     - deploy-staging
     - sonar
     - acceptance-staging
-    - smoke
+    - smoke-staging
     - publish-rc
 - name: production
   jobs:
@@ -348,7 +348,7 @@ jobs:
           CF_DOMAIN: {{cf-domain}}
           CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
 
-  - name: smoke
+  - name: smoke-staging
     plan:
       - aggregate:
         - get: gradle
@@ -388,7 +388,7 @@ jobs:
         - get: gradle
         - get: repo
           resource: repo-release
-          passed: [ smoke, acceptance-staging ]
+          passed: [ smoke-staging, acceptance-staging ]
           trigger: true
       - task: publish-rc
         file: repo/ci/tasks/publish-artifact.yml
