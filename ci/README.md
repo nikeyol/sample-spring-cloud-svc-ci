@@ -49,6 +49,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
     ```
     cf-domain: local.pcfdev.io
     cf-api: api.local.pcfdev.io
+    cf-app-name: sample-spring-cloud-svc-ci
     cf-username: admin
     cf-password: admin
     cf-org: demo

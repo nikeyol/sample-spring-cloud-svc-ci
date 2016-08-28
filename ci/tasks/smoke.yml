@@ -11,6 +11,7 @@ run:
   path: /bin/bash
   args: ["-c", "repo/ci/tasks/scripts/cats.sh smoke"]
 params:
+  CF_APP_NAME:
   CF_API:
   CF_USER:
   CF_PASSWORD:

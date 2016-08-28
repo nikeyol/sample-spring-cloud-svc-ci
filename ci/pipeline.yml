@@ -156,7 +156,7 @@ jobs:
         params:
           manifest: repo/manifest-dev.yml
           path: build/sample-spring-cloud-svc-ci.jar
-          current_app_name: {{cf-host-dev}}
+          current_app_name: {{cf-app-name}}
 
   - name: test-release
     serial: true
@@ -190,10 +190,50 @@ jobs:
         params:
           manifest: repo/manifest-stg.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: {{cf-host-staging}}
+          current_app_name: {{cf-app-name}}
       - put: release-candidate
         params:
           file: build/sample-spring-cloud-svc-ci-*.jar
+
+  - name: acceptance-staging
+    plan:
+      - aggregate:
+        - get: gradle
+        - get: repo
+          resource: repo-release
+          passed: [deploy-staging]
+          trigger: true
+      - task: cats
+        file: repo/ci/tasks/cats.yml
+        params:
+          CF_APP_NAME: {{cf-app-name}}
+          CF_API: {{cf-api}}
+          CF_USER: {{cf-username}}
+          CF_PASSWORD: {{cf-password}}
+          CF_ORG: {{cf-org}}
+          CF_SPACE: {{cf-space-staging}}
+          CF_DOMAIN: {{cf-domain}}
+          CF_HOST_NAME: {{cf-host-staging}}
+
+  - name: smoke-staging
+    plan:
+      - aggregate:
+        - get: gradle
+        - get: repo
+          resource: repo-release
+          passed: [deploy-staging]
+          trigger: true
+      - task: cats
+        file: repo/ci/tasks/smoke.yml
+        params:
+          CF_APP_NAME: {{cf-app-name}}
+          CF_API: {{cf-api}}
+          CF_USER: {{cf-username}}
+          CF_PASSWORD: {{cf-password}}
+          CF_ORG: {{cf-org}}
+          CF_SPACE: {{cf-space-staging}}
+          CF_DOMAIN: {{cf-domain}}
+          CF_HOST_NAME: {{cf-host-staging}}
 
   - name: merge-release-to-master
     public: true
@@ -327,45 +367,7 @@ jobs:
         params:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: {{cf-host-prod}}
-
-  - name: acceptance-staging
-    plan:
-      - aggregate:
-        - get: gradle
-        - get: repo
-          resource: repo-release
-          passed: [deploy-staging]
-          trigger: true
-      - task: cats
-        file: repo/ci/tasks/cats.yml
-        params:
-          CF_API: {{cf-api}}
-          CF_USER: {{cf-username}}
-          CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-org}}
-          CF_SPACE: {{cf-space-staging}}
-          CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: {{cf-host-staging}}
-
-  - name: smoke-staging
-    plan:
-      - aggregate:
-        - get: gradle
-        - get: repo
-          resource: repo-release
-          passed: [deploy-staging]
-          trigger: true
-      - task: cats
-        file: repo/ci/tasks/smoke.yml
-        params:
-          CF_API: {{cf-api}}
-          CF_USER: {{cf-username}}
-          CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-org}}
-          CF_SPACE: {{cf-space-staging}}
-          CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: {{cf-host-staging}}
+          current_app_name: {{cf-app-name}}
 
   - name: sonar
     plan:
