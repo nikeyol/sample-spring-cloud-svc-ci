@@ -302,7 +302,7 @@ jobs:
         - get:  repo
           resource: repo-release
         - get: version
-          params: {bump: minor}
+          params: {bump: patch}
       - task: bump-to-next-develop-version
         file: repo/ci/tasks/bump-to-next-develop-version.yml
         params:
@@ -390,7 +390,7 @@ jobs:
         - get: gradle
         - get: repo
           resource: repo-release
-          passed: [ smoke-staging, acceptance-staging ]
+          passed: [ smoke-staging, acceptance-staging, sonar ]
           trigger: true
       - task: publish-rc
         file: repo/ci/tasks/publish-artifact.yml

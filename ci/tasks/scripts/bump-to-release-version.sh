@@ -11,7 +11,7 @@ mv -f ../repo/* ./
 echo "Bump to ($VERSION)"
 rm gradle.properties
 touch gradle.properties
-cat version=$VERSION > gradle.properties
+echo version=$VERSION > gradle.properties
 ./mvnw versions:set -DnewVersion=${VERSION}
 
 git config --global user.email "${GIT_EMAIL}"
