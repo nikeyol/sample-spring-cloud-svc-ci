@@ -156,7 +156,7 @@ jobs:
         params:
           manifest: repo/manifest-dev.yml
           path: build/sample-spring-cloud-svc-ci.jar
-          current_app_name: sample-spring-cloud-svc-ci-dev
+          current_app_name: {{cf-host-dev}}
 
   - name: test-release
     serial: true
@@ -190,7 +190,7 @@ jobs:
         params:
           manifest: repo/manifest-stg.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: sample-spring-cloud-svc-ci-staging
+          current_app_name: {{cf-host-staging}}
       - put: release-candidate
         params:
           file: build/sample-spring-cloud-svc-ci-*.jar
@@ -327,7 +327,7 @@ jobs:
         params:
           manifest: repo/manifest.yml
           path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: sample-spring-cloud-svc-ci
+          current_app_name: {{cf-host-prod}}
 
   - name: acceptance-staging
     plan:
@@ -346,7 +346,7 @@ jobs:
           CF_ORG: {{cf-org}}
           CF_SPACE: {{cf-space-staging}}
           CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
+          CF_HOST_NAME: {{cf-host-staging}}
 
   - name: smoke-staging
     plan:
@@ -365,7 +365,7 @@ jobs:
           CF_ORG: {{cf-org}}
           CF_SPACE: {{cf-space-staging}}
           CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: sample-spring-cloud-svc-ci-staging
+          CF_HOST_NAME: {{cf-host-staging}}
 
   - name: sonar
     plan:
