@@ -8,4 +8,6 @@ ls -al ${GRADLE_USER_HOME}
 
 cd repo
 ./gradlew --full-stacktrace --parallel --no-daemon assemble
-mv build/libs/sample-spring-cloud-svc-ci.jar ../build/sample-spring-cloud-svc-ci.jar
+cp build/libs/*.jar ../build/
+
+ls ../build
