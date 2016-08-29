@@ -155,7 +155,7 @@ jobs:
       - put: cf-dev
         params:
           manifest: repo/manifest-dev.yml
-          path: build/sample-spring-cloud-svc-ci.jar
+          path: build/sample-spring-cloud-svc-ci-*.jar
           current_app_name: {{cf-app-name}}
 
   - name: test-release
