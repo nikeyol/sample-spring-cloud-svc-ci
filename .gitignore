@@ -4,6 +4,7 @@ target/
 .classpath
 .project
 bin/
+keys/
 .cache
 .gradle
 .idea

@@ -21,11 +21,12 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
   1. Use docker compose
   ```console
-    $ docker-compose -f docker-compose-sonar.yml up -d
-    $ docker-compose -f docker-compose-nexus.yml up -d
-    $ export CONCOURSE_EXTERNAL_URL=http://192.168.99.101:8080
+    $ ./generate-keys.sh
+    $ export CONCOURSE_EXTERNAL_URL=http://192.168.99.100:8080
     $ export CONCOURSE_PASSWORD=changeme
     $ export CONCOURSE_LOGIN=concourse
+    $ docker-compose -f docker-compose-sonar.yml up -d
+    $ docker-compose -f docker-compose-nexus.yml up -d
     $ docker-compose up -d
   ```
 
@@ -38,7 +39,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
   1. Login to the concourse and create a target
     ```console
-    $ fly login -c http://192.168.99.101:8080 -u concourse -p changeme -t demo
+    $ fly login -c http://192.168.99.100:8080 -u concourse -p changeme -t demo
     ```
 
   1. Configure the cloud foundry target environment in [pipeline.yml](pipeline.yml)

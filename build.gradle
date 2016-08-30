@@ -10,7 +10,7 @@ buildscript {
 		maven { url "https://repo.spring.io/snapshot" }
 		maven { url "https://repo.spring.io/milestone" }
 		maven { url "https://plugins.gradle.org/m2/" }
-		maven { url "http://192.168.99.101:8081/content/groups/public" }
+		maven { url "http://192.168.99.100:8081/content/groups/public" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -71,10 +71,10 @@ dependencyManagement {
 uploadArchives {
 	repositories {
 		mavenDeployer {
-			repository(url: "http://192.168.99.101:8081/content/repositories/releases") {
+			repository(url: "http://192.168.99.100:8081/content/repositories/releases") {
 				authentication(userName: "admin", password: "admin123")
 			}
-			snapshotRepository(url: 'http://192.168.99.101:8081/content/repositories/snapshots') {
+			snapshotRepository(url: 'http://192.168.99.100:8081/content/repositories/snapshots') {
 				authentication(userName: 'admin', password: 'admin123');
 			}
 			pom.version = "${version}"
