@@ -34,7 +34,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
   1. Download fly cli or synchronize
     ```console
-    $ fly sync
+    $ fly -t demo sync
     ```
 
   1. Login to the concourse and create a target
