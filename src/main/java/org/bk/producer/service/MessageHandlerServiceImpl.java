@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import rx.Single;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MessageHandlerServiceImpl implements MessageHandlerService {
@@ -24,17 +24,18 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
     }
 
     @Override
-    public Mono<MessageAcknowledgement> handleMessage(Message message) {
+    public Single<MessageAcknowledgement> handleMessage(Message message) {
         logger.info("About to Acknowledge");
 
-        return Mono.delay(Duration.ofMillis(message.getDelayBy()))
-                .map(l -> message.isThrowException())
-                .map(throwException -> {
-                    if (throwException) {
-                        throw new RuntimeException("Throwing an exception!");
+        return Single.just(message)
+                .delay(message.getDelayBy(), TimeUnit.MILLISECONDS)
+                .flatMap(msg -> {
+                    if (msg.isThrowException()) {
+                        return Single.error(new IllegalStateException("Throwing a deliberate exception!"));
                     }
-                    return new MessageAcknowledgement(message.getId(), message.getPayload(), this.replyMessage);
+                    return Single.just(new MessageAcknowledgement(message.getId(), message.getPayload(), this.replyMessage));
                 });
+
     }
 
 

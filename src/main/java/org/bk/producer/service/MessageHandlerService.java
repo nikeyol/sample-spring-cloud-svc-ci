@@ -2,9 +2,8 @@ package org.bk.producer.service;
 
 import org.bk.producer.domain.Message;
 import org.bk.producer.domain.MessageAcknowledgement;
-import reactor.core.publisher.Mono;
-import rx.Observable;
+import rx.Single;
 
 public interface MessageHandlerService {
-    Mono<MessageAcknowledgement> handleMessage(Message message);
+    Single<MessageAcknowledgement> handleMessage(Message message);
 }

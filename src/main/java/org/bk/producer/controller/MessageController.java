@@ -23,7 +23,7 @@ public class MessageController {
 
     @RequestMapping(value = "/message", method = RequestMethod.POST)
     public Resource<MessageAcknowledgement> pongMessage(@RequestBody Message input) {
-        return new Resource<>(this.messageHandlerService.handleMessage(input).block(20000L));
+        return new Resource<>(this.messageHandlerService.handleMessage(input).toBlocking().value());
     }
 
 }
