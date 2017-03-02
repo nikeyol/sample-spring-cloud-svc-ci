@@ -64,6 +64,12 @@ resources:
       private_key: {{github-private-key}}
     check_every: 10s # for demo
 
+  - name: pipeline
+    type: git
+    source:
+      uri: https://github.com/pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: master
+
   - name: version
     type: semver
     source:
@@ -131,25 +137,27 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-develop
           trigger: true
       - task: unit
-        file: repo/ci/tasks/unit.yml
+        file: pipeline/concourse/tasks/unit.yml
 
   - name: deploy-develop
     serial: true
     public: false
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-develop
           passed: [ test-develop ]
           trigger: true
       - task: build
-        file: repo/ci/tasks/build.yml
+        file: pipeline/concourse/tasks/build.yml
         params:
           JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-dev
@@ -163,18 +171,20 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-release
           trigger: true
       - task: unit
-        file: repo/ci/tasks/unit.yml
+        file: pipeline/concourse/tasks/unit.yml
 
   - name: deploy-staging
     serial: true
     public: false
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: version
           params: {pre: rc}
@@ -183,7 +193,7 @@ jobs:
           passed: [ test-release ]
           trigger: true
       - task: build-rc
-        file: repo/ci/tasks/build-rc.yml
+        file: pipeline/concourse/tasks/build-rc.yml
         params:
           JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-staging
@@ -198,13 +208,14 @@ jobs:
   - name: acceptance-staging
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-release
           passed: [deploy-staging]
           trigger: true
       - task: cats
-        file: repo/ci/tasks/cats.yml
+        file: pipeline/concourse/tasks/cats.yml
         params:
           CF_APP_NAME: {{cf-app-name}}
           CF_API: {{cf-api}}
@@ -218,13 +229,14 @@ jobs:
   - name: smoke-staging
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-release
           passed: [deploy-staging]
           trigger: true
       - task: cats
-        file: repo/ci/tasks/smoke.yml
+        file: pipeline/concourse/tasks/smoke.yml
         params:
           CF_APP_NAME: {{cf-app-name}}
           CF_API: {{cf-api}}
@@ -239,12 +251,13 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: repo
           resource: repo-master
         - get: repo-release
           passed: [ test-release ]
       - task: merge-release-to-master
-        file: repo/ci/tasks/merge-release-to-master.yml
+        file: pipeline/concourse/tasks/merge-release-to-master.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -258,6 +271,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-master
@@ -265,12 +279,13 @@ jobs:
           passed: [ merge-release-to-master ]
           trigger: true
       - task: unit
-        file: repo/ci/tasks/unit.yml
+        file: pipeline/concourse/tasks/unit.yml
 
   - name: tag-master
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get:  repo
           resource: repo-master
@@ -280,7 +295,7 @@ jobs:
         - get: version
           params: {bump: final}
       - task: bump-to-release-version
-        file: repo/ci/tasks/bump-to-release-version.yml
+        file: pipeline/concourse/tasks/bump-to-release-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -295,6 +310,7 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get:  repo-master
           passed: [ tag-master ]
@@ -304,7 +320,7 @@ jobs:
         - get: version
           params: {bump: patch}
       - task: bump-to-next-develop-version
-        file: repo/ci/tasks/bump-to-next-develop-version.yml
+        file: pipeline/concourse/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -319,13 +335,14 @@ jobs:
     public: true
     plan:
       - aggregate:
+        - get: pipeline
         - get: repo
           resource: repo-develop
         - get: repo-release
           passed: [ bump-version ]
           trigger: true
       - task: merge-release-to-develop
-        file: repo/ci/tasks/merge-release-to-develop.yml
+        file: pipeline/concourse/tasks/merge-release-to-develop.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -337,6 +354,7 @@ jobs:
   - name: publish-release
     plan:
       - aggregate:
+        - get: pipeline
         - get: version
         - get: gradle
         - get: repo
@@ -344,7 +362,7 @@ jobs:
           passed: [ tag-master ]
           trigger: true
       - task: publish-release
-        file: repo/ci/tasks/publish-artifact.yml
+        file: pipeline/concourse/tasks/publish-artifact.yml
         params:
           NEXUS_URL: {{nexus-url}}
 
@@ -352,6 +370,7 @@ jobs:
     public: false
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: version
           params: {pre: final}
@@ -360,7 +379,7 @@ jobs:
           passed: [ publish-release ]
           trigger: true
       - task: build-final
-        file: repo/ci/tasks/build-rc.yml
+        file: pipeline/concourse/tasks/build-rc.yml
         params:
           JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
       - put: cf-prod
@@ -372,19 +391,21 @@ jobs:
   - name: sonar
     plan:
       - aggregate:
+        - get: pipeline
         - get: gradle
         - get: repo
           resource: repo-release
           passed: [ test-release ]
           trigger: true
       - task: publish-quality-metrics
-        file: repo/ci/tasks/publish-quality-metrics.yml
+        file: pipeline/concourse/tasks/publish-quality-metrics.yml
         params:
           SONAR_URL: {{sonar-url}}
 
   - name: publish-rc
     plan:
       - aggregate:
+        - get: pipeline
         - get: version
           params: {pre: rc}
         - get: gradle
@@ -393,7 +414,7 @@ jobs:
           passed: [ smoke-staging, acceptance-staging, sonar ]
           trigger: true
       - task: publish-rc
-        file: repo/ci/tasks/publish-artifact.yml
+        file: pipeline/concourse/tasks/publish-artifact.yml
         params:
           NEXUS_URL: {{nexus-url}}
 

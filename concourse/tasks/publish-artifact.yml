@@ -10,6 +10,6 @@ inputs:
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/ci/tasks/scripts/upload-archives.sh"]
+  args: ["-c", "repo/concourse/tasks/scripts/upload-archives.sh"]
 params:
   NEXUS_URL:

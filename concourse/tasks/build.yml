@@ -11,6 +11,6 @@ outputs:
   - name: build
 run:
   path: /bin/bash
-  args: ["-c", "repo/ci/tasks/scripts/build.sh"]
+  args: ["-c", "repo/concourse/tasks/scripts/build.sh"]
 params:
-  JAVA_OPTIONS: 
+  JAVA_OPTIONS:

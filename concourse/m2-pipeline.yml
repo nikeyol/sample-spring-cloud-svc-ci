@@ -7,6 +7,12 @@ resources:
       private_key: {{github-private-key}}
     check_every: 10s # for demo
 
+  - name: pipeline
+    type: git
+    source:
+      uri: https://github.com/pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: master
+
   - name: m2
     type: docker-image
     source:
@@ -18,6 +24,7 @@ resources:
 jobs:
   - name: init-m2
     plan:
+      - get: pipeline
       - get: repo
         resource: repo-release
       - task: build-m2
@@ -35,7 +42,7 @@ jobs:
           run:
             path: sh
             args:
-            - repo/ci/tasks/scripts/m2.sh
+            - pipeline/concourse/tasks/scripts/m2.sh
             - init
       - put: m2
         params:
@@ -43,6 +50,7 @@ jobs:
 
   - name: update-m2
     plan:
+      - get: pipeline
       - get: repo
         resource: repo-release
       - get: m2
@@ -62,7 +70,7 @@ jobs:
           run:
             path: sh
             args:
-            - repo/ci/tasks/scripts/m2.sh
+            - pipeline/concourse/tasks/scripts/m2.sh
       - put: m2
         params:
           import_file: to-push/rootfs.tar

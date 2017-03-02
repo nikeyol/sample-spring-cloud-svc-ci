@@ -76,7 +76,7 @@ You'll need to set this to something that isn't taken and set the `s3-bucket` va
   1. Execute a task
 
     ```console
-    $ CF_API=api.run.pivotal.io fly execute -c ci/tasks/smoke.yml -i gradle=gradle/ -i repo=.
+    $ CF_API=api.run.pivotal.io fly execute -c concourse/tasks/smoke.yml -i gradle=gradle/ -i repo=.
     ```
 
 * Run pipeline to build the gradle cache

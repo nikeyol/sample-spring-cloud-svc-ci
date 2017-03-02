@@ -15,9 +15,16 @@ resources:
       username: {{docker-hub-username}}
       password: {{docker-hub-password}}
 
+  - name: pipeline
+    type: git
+    source:
+      uri: https://github.com/pivotalservices/sample-spring-cloud-svc-ci.git
+      branch: master
+
 jobs:
   - name: init-gradle-cache
     plan:
+      - get: pipeline
       - get: repo
       - task: build-gradle-cache
         config:
@@ -34,7 +41,7 @@ jobs:
           run:
             path: /bin/bash
             args:
-              - repo/ci/tasks/scripts/gradle-cache.sh
+              - pipeline/concourse/tasks/scripts/gradle-cache.sh
               - init
       - put: gradle-cache
         params:
@@ -42,6 +49,7 @@ jobs:
 
   - name: update-gradle-cache
     plan:
+      - get: pipeline
       - get: repo
       - get: gradle-cache
       - task: build-gradle-cache
@@ -60,7 +68,7 @@ jobs:
           run:
             path: /bin/bash
             args:
-              - repo/ci/tasks/scripts/gradle-cache.sh
+              - pipeline/concourse/tasks/scripts/gradle-cache.sh
       - put: gradle-cache
         params:
           import_file: to-push/rootfs.tar

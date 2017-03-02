@@ -15,7 +15,7 @@ outputs:
 run:
   path: /bin/bash
   args:
-    - repo/ci/tasks/scripts/bump-to-next-develop-version.sh
+    - repo/concourse/tasks/scripts/bump-to-next-develop-version.sh
 params:
   GIT_EMAIL:
   GIT_NAME:

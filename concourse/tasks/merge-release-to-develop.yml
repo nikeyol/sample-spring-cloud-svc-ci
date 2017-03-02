@@ -12,7 +12,7 @@ outputs:
 run:
   path: /bin/bash
   args:
-  - repo-release/ci/tasks/scripts/merge-release-branch.sh
+  - repo-release/concourse/tasks/scripts/merge-release-branch.sh
 params:
   GIT_EMAIL:
   GIT_NAME:

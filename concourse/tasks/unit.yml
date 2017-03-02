@@ -9,4 +9,4 @@ inputs:
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/ci/tasks/scripts/unit.sh"]
+  args: ["-c", "repo/concourse/tasks/scripts/unit.sh"]

@@ -9,7 +9,7 @@ inputs:
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/ci/tasks/scripts/cats.sh acceptance"]
+  args: ["-c", "repo/concourse/tasks/scripts/cats.sh acceptance"]
 params:
   CF_APP_NAME:
   CF_API:

@@ -15,7 +15,7 @@ outputs:
 run:
   path: /bin/bash
   args:
-    - repo-release/ci/tasks/scripts/bump-to-release-version.sh
+    - repo-release/concourse/tasks/scripts/bump-to-release-version.sh
 params:
   GIT_EMAIL:
   GIT_NAME:
