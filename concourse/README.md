@@ -15,7 +15,7 @@ This pipeline is based on the [presentation](http://www.slideshare.net/makingx/c
 to pass to your pipeline configuration below.
 
 * Create an S3 bucket (e.g. `sample-spring-cloud-svc-pipeline-artifacts`)
-You'll need to set this to something that isn't taken and set the `s3-bucket` variable pointed to in [pipeline.yml](pipeline.yml) to use that bucket instead. (See step 3 below for how to setup variables)
+You'll need to set this to something that isn't taken and set the `s3-bucket` variable pointed to in [pipeline.yml](pipeline.yml) to use that bucket instead. (See step 3 under "Configure Concourse Pipeline" for how to setup variables)
 
 * Setup Concourse, Sonar, Nexus
 
