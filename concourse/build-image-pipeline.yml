@@ -2,7 +2,7 @@ resources:
   - name: repo-develop
     type: git
     source:
-      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      uri: {{sample-spring-cloud-svc-uri}}
       branch: develop
       private_key: {{github-private-key}}
     check_every: 10s # for demo
@@ -25,4 +25,4 @@ jobs:
     - put: docker-image
       resource: gradle-java-8
       params:
-        build: repo/ci
+        build: repo/concourse
