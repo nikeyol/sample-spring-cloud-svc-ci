@@ -41,7 +41,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
 
   1. Configure the cloud foundry target environment in [pipeline.yml](pipeline.yml)
 
-    Copy ci/credentials.yml.sample to ci/credentials.yml and configure for your cloud foundry deployment.
+    Copy concourse/credentials.yml.sample to concourse/credentials.yml and configure for your cloud foundry deployment.
 
     Example:
     ```
@@ -55,13 +55,16 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
     cf-space-staging: staging
     cf-space-prod: production
     cf-space-test: test
+    sample-spring-cloud-svc-uri: git@github.com:malston/sample-spring-cloud-svc-ci.git
     ```
+
+  1. Change `sample-spring-cloud-svc-uri` username to your github username where you forked this project to.
 
   1. Upload the pipeline configure
 
     ```console
-    $ cd ci
-    $ ./set-pipeline.sh
+    $ cd concourse
+    $ fly -t demo sp -p demo -c pipeline.yml -l credentials.yml
     ```
 
   1. Unpause the pipeline
