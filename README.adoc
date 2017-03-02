@@ -1,22 +1,8 @@
 == Pipelines
 
-Switch to one of the following branches to checkout the respective pipeline:
-
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci[concourse] and view https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/develop/ci/README.md[readme]
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/tree/[jenkins]
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/tree/wercker[wercker]
-
-== Running Locally
-
-* Start up the Service using the following command
-
-[source,java]
-----
-./gradlew bootRun
-----
-
-* A very basic UI to exercise the API is available at http://localhost:8080
-
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.md[concourse]
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.md[jenkins]
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/wercker/README.md[wercker]
 
 == Jenkins Pre-requisites
 

@@ -2,13 +2,16 @@ concourse-db:
   image: postgres:9.5
   environment:
     POSTGRES_DB: concourse
-    POSTGRES_PASSWORD: concourse_pass
-    POSTGRES_USER: concourse_user
+    POSTGRES_USER: concourse
+    POSTGRES_PASSWORD: changeme
     PGDATA: /database
 
 concourse-web:
   image: concourse/concourse
-  links: [concourse-db]
+  links:
+    - concourse-db
+    - nexus
+    - sonar
   command: web
   ports: ["8080:8080"]
   volumes: ["./keys/web:/concourse-keys"]
@@ -16,13 +19,33 @@ concourse-web:
     CONCOURSE_BASIC_AUTH_USERNAME: "${CONCOURSE_LOGIN}"
     CONCOURSE_BASIC_AUTH_PASSWORD: "${CONCOURSE_PASSWORD}"
     CONCOURSE_EXTERNAL_URL: "${CONCOURSE_EXTERNAL_URL}"
-    CONCOURSE_POSTGRES_DATA_SOURCE: "postgres://concourse_user:concourse_pass@concourse-db:5432/concourse?sslmode=disable"
+    CONCOURSE_POSTGRES_DATA_SOURCE: |-
+      postgres://concourse:changeme@concourse-db:5432/concourse?sslmode=disable
 
 concourse-worker:
   image: concourse/concourse
   privileged: true
-  links: [concourse-web]
+  links:
+    - concourse-web
+    - nexus
+    - sonar
   command: worker
   volumes: ["./keys/worker:/concourse-keys"]
   environment:
     CONCOURSE_TSA_HOST: concourse-web
+
+# artifactory:
+#   image: jfrog-docker-registry.bintray.io/artifactory/artifactory-oss:latest
+#   ports:
+#     - "8081:8081"
+
+nexus:
+  image: sonatype/nexus:oss
+  ports:
+   - "8081:8081"
+
+sonar:
+  image: sonarqube:latest
+  ports:
+   - "9000:9000"
+   - "9092:9092"
