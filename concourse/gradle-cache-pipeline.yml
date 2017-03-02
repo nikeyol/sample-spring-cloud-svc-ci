@@ -24,8 +24,9 @@ resources:
 jobs:
   - name: init-gradle-cache
     plan:
-      - get: pipeline
-      - get: repo
+      - aggregate:
+        - get: pipeline
+        - get: repo
       - task: build-gradle-cache
         config:
           platform: linux
@@ -35,6 +36,7 @@ jobs:
               repository: java
               tag: "8"
           inputs:
+            - name: pipeline
             - name: repo
           outputs:
             - name: to-push
