@@ -11,7 +11,7 @@ This pipeline is based on the [presentation](http://www.slideshare.net/makingx/c
 
 ## How to replicate this pipeline in your env
 
-* Fork this github repo to your own github account, [ generate the key pair and add the public key to github ](https://help.github.com/articles/generating-ssh-keys), and save the private key (~/.ssh/concourse_demo_git)
+* Fork the [sample-spring-cloud-svc](https://github.com/pivotalservices/sample-spring-cloud-svc) github repo to your own github account, [ generate the key pair and add the public key to github ](https://help.github.com/articles/generating-ssh-keys), and save the private key (~/.ssh/concourse_demo_git)
 to pass to your pipeline configuration below.
 
 * Create an S3 bucket (e.g. `sample-spring-cloud-svc-pipeline-artifacts`)
