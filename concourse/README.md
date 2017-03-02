@@ -6,7 +6,7 @@ This pipeline is based on the [presentation](http://www.slideshare.net/makingx/c
 
 ## Pipeline Sequence
 
-![image](/ci/images/sequence_diagram.png "Sequence Diagram")
+![image](/concourse/images/sequence_diagram.png "Sequence Diagram")
 
 
 ## How to replicate this pipeline in your env
