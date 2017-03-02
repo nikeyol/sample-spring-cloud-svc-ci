@@ -5,11 +5,12 @@ image_resource:
     repository: malston/gradle-java-8
 platform: linux
 inputs:
+  - name: pipeline
   - name: repo
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/concourse/tasks/scripts/cats.sh acceptance"]
+  args: ["-c", "pipeline/concourse/tasks/scripts/cats.sh acceptance"]
 params:
   CF_APP_NAME:
   CF_API:

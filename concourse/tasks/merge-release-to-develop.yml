@@ -5,6 +5,7 @@ image_resource:
   source:
     repository: getourneau/alpine-bash-git
 inputs:
+  - name: pipeline
   - name: repo
   - name: repo-release
 outputs:
@@ -12,7 +13,7 @@ outputs:
 run:
   path: /bin/bash
   args:
-  - repo-release/concourse/tasks/scripts/merge-release-branch.sh
+  - pipeline/concourse/tasks/scripts/merge-release-branch.sh
 params:
   GIT_EMAIL:
   GIT_NAME:

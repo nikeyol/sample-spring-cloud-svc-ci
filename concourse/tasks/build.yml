@@ -5,12 +5,13 @@ image_resource:
   source:
     repository: malston/gradle-java-8
 inputs:
+  - name: pipeline
   - name: gradle
   - name: repo
 outputs:
   - name: build
 run:
   path: /bin/bash
-  args: ["-c", "repo/concourse/tasks/scripts/build.sh"]
+  args: ["-c", "pipeline/concourse/tasks/scripts/build.sh"]
 params:
   JAVA_OPTIONS:

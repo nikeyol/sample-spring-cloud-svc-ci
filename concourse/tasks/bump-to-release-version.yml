@@ -6,6 +6,7 @@ image_resource:
     repository: java
     tag: 8-jdk
 inputs:
+  - name: pipeline
   - name: version
   - name: repo
   - name: repo-release
@@ -15,7 +16,7 @@ outputs:
 run:
   path: /bin/bash
   args:
-    - repo-release/concourse/tasks/scripts/bump-to-release-version.sh
+    - pipeline/concourse/tasks/scripts/bump-to-release-version.sh
 params:
   GIT_EMAIL:
   GIT_NAME:

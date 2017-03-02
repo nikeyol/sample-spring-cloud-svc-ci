@@ -5,8 +5,9 @@ image_resource:
   source:
     repository: malston/gradle-java-8
 inputs:
+  - name: pipeline
   - name: repo
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/concourse/tasks/scripts/unit.sh"]
+  args: ["-c", "pipeline/concourse/tasks/scripts/unit.sh"]

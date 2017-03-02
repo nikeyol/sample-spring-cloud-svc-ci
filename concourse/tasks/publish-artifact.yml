@@ -5,11 +5,12 @@ image_resource:
     repository: malston/gradle-java-8
 platform: linux
 inputs:
+  - name: pipeline
   - name: version
   - name: repo
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/concourse/tasks/scripts/upload-archives.sh"]
+  args: ["-c", "pipeline/concourse/tasks/scripts/upload-archives.sh"]
 params:
   NEXUS_URL:

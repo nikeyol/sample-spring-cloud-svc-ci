@@ -5,10 +5,11 @@ image_resource:
     repository: malston/gradle-java-8
 platform: linux
 inputs:
+  - name: pipeline
   - name: repo
   - name: gradle
 run:
   path: /bin/bash
-  args: ["-c", "repo/concourse/tasks/scripts/sonar.sh"]
+  args: ["-c", "pipeline/concourse/tasks/scripts/sonar.sh"]
 params:
   SONAR_URL:
