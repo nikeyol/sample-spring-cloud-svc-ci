@@ -43,7 +43,7 @@ resources:
   - name: repo-develop
     type: git
     source:
-      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      uri: {{sample-spring-cloud-svc-uri}}
       branch: develop
       private_key: {{github-private-key}}
     check_every: 10s # for demo
@@ -51,7 +51,7 @@ resources:
   - name: repo-release
     type: git
     source:
-      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      uri: {{sample-spring-cloud-svc-uri}}
       branch: release
       private_key: {{github-private-key}}
     check_every: 10s # for demo
@@ -59,7 +59,7 @@ resources:
   - name: repo-master
     type: git
     source:
-      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      uri: {{sample-spring-cloud-svc-uri}}
       branch: master
       private_key: {{github-private-key}}
     check_every: 10s # for demo
@@ -67,7 +67,7 @@ resources:
   - name: version
     type: semver
     source:
-      uri: git@github.com:pivotalservices/sample-spring-cloud-svc-ci.git
+      uri: {{sample-spring-cloud-svc-uri}}
       branch: version
       private_key: {{github-private-key}}
       file: version
