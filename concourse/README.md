@@ -15,7 +15,7 @@ This pipeline is based on the [presentation](http://www.slideshare.net/makingx/c
 to pass to your pipeline configuration below.
 
 * Create an S3 bucket (e.g. `sample-spring-cloud-svc-pipeline-artifacts`)
-You'll need to rename this to something that isn't taken and update [pipeline.yml](pipeline.yml) to use that bucket instead.
+You'll need to set this to something that isn't taken and set the `s3-bucket` variable pointed to in [pipeline.yml](pipeline.yml) to use that bucket instead. (See step 3 below for how to setup variables)
 
 * Setup Concourse, Sonar, Nexus
 
@@ -39,7 +39,7 @@ You'll need to rename this to something that isn't taken and update [pipeline.ym
     $ fly -t demo login -c http://${ROOT_ADDRESS}:8080 -u concourse -p changeme
     ```
 
-  1. Configure the cloud foundry target environment in [pipeline.yml](pipeline.yml)
+  1. Configure your pipeline variables used by [pipeline.yml](pipeline.yml)
 
     Copy concourse/credentials.yml.sample to concourse/credentials.yml and configure for your cloud foundry deployment.
 

@@ -107,18 +107,18 @@ resources:
   - name: release-candidate
     type: s3
     source:
-      bucket: sample-spring-cloud-svc-pipeline-artifacts
+      bucket: {{s3-bucket}}
       regexp: sample-spring-cloud-svc-ci-(.*).jar
       access_key_id: {{s3-access-key-id}}
       secret_access_key: {{s3-secret-access-key}}
 
-  - name: release-final
-    type: s3
-    source:
-      bucket: sample-spring-cloud-svc-pipeline-artifacts
-      regexp: sample-spring-cloud-svc-ci-(.*).jar
-      access_key_id: {{s3-access-key-id}}
-      secret_access_key: {{s3-secret-access-key}}
+  # - name: release-final
+  #   type: s3
+  #   source:
+  #     bucket: {{s3-bucket}}
+  #     regexp: sample-spring-cloud-svc-ci-(.*).jar
+  #     access_key_id: {{s3-access-key-id}}
+  #     secret_access_key: {{s3-secret-access-key}}
 
   - name: gradle
     type: docker-image
