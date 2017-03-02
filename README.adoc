@@ -2,34 +2,4 @@
 
 * https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.md[concourse]
 * https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.md[jenkins]
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/wercker/README.md[wercker]
-
-== Jenkins Pre-requisites
-
-* Install Jenkins 2.x+, the simplest way to do this for a local environment is using Docker:
- - Run the following command:
-[source]
-----
-docker run -p 8080:8080 -p 50000:50000 jenkins:2.9.14
-----
-
- - Navigate to http://dockerip:8080/
-
-[NOTE]
-===============================
-*NOTE*
-
-a temporary admin password will be printed to the console, use it to login to
-the console
-===============================
-
- - Install the Pipeline Jenkins Plugin
-
- - Download Jenkins CLI from the Jenkins server:
-
- [source]
- ----
- wget http://dockerip:8080/jnlpJars/jenkins-cli.jar
- export JENKINS_URL=http://192.168.99.100:8080/
- java -jar jenkins-cli.jar create-job DemoPipeline < config.xml --username admin --password admin
- ----
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/tree/wercker[wercker]
