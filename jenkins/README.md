@@ -2,6 +2,16 @@
 
 Demonstrates a Jenkins 2.0 Pipeline to build a Java project and deploy the project to a running instance of Pivotal Cloud Foundry.
 
+## Quick Start
+
+This project builds a custom Docker container with Jenkins plugins automatically installed, and the CF CLI automatically installed and configured so it can be used by Pipelines.
+
+  ```
+  docker build -t malston/jenkins2-cf-pipeline-demo .
+  docker-compose up -d
+  docker-compose logs
+  ```
+
 ## To Run this Demo
 
 * Clone this project
@@ -63,12 +73,6 @@ $ open $(echo \"$(echo $DOCKER_HOST)\"|
             \sed 's/[0-9]\{4,\}/8080/g'|
             \sed 's/\"//g')
 ```
-
-## To Build this project
-
-This project builds a custom Docker container with Jenkins plugins automatically installed, and the CF CLI automatically installed and configured so it can be used by Pipelines.
-
-  `docker build -t malston/jenkins2-cf-pipeline-demo .`
 
 ## To Build Cloudbees version of this project
 
