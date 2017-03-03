@@ -6,8 +6,8 @@ Demonstrates a Jenkins 2.0 Pipeline to build a Java project and deploy the proje
 
 * Clone this project
   ```
-  git clone https://github.com/pivotalservices/jenkins2-pipeline-demo
-  cd jenkins2-pipeline-demo
+  git clone https://github.com/pivotalservices/sample-spring-cloud-svc-ci
+  cd sample-spring-cloud-svc-ci/jenkins
   ```
 
 * Run the following commands to build and run the Docker container
@@ -42,7 +42,7 @@ Demonstrates a Jenkins 2.0 Pipeline to build a Java project and deploy the proje
               \sed 's/[0-9]\{4,\}/8080/g'|
               \sed 's/\"//g')
   ```
-The pipeline created using the above script should be located at `$JENKINS_URL/job/sample-spring-cloud-svc-ci`
+The pipeline created using the above script should be located at `$JENKINS_URL/jobs/sample-spring-cloud-svc-ci`
 
 ## Docker Compose
 
