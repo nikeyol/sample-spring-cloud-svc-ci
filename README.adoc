@@ -3,7 +3,7 @@
 * https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.adoc[concourse]
 * https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.adoc[jenkins]
 
-The master branch uses Spring Cloud Pipelines. You can get most of the documentation for running these pipelines https://github.com/spring-cloud/spring-cloud-pipelines[here].
+The master branch uses Spring Cloud Pipelines. You can get most of the documentation for running these pipelines https://github.com/spring-cloud/spring-cloud-pipelines#spring-cloud-pipelines[here].
 
 == References
 
