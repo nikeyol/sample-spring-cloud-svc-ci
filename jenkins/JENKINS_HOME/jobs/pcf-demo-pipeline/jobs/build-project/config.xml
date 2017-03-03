@@ -38,7 +38,7 @@ def getAllBuildNumbers(Job job) {
     return buildNumbers
 }
 
-def buildJob = Jenkins.instance.getItemByFullName(&apos;CF-Demo/unit-project&apos;);
+def buildJob = Jenkins.instance.getItemByFullName(&apos;pcf-demo-pipeline/unit-project&apos;);
 return getAllBuildNumbers(buildJob)</scriptText>
             <usePredefinedVariables>true</usePredefinedVariables>
             <project class="maven2-moduleset" reference="../../../../../.."/>

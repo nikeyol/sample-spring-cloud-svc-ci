@@ -2,7 +2,7 @@
 <com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@5.18">
   <actions/>
   <description></description>
-  <displayName>CloudFoundry Demo Project</displayName>
+  <displayName>PCF Pipeline Demo</displayName>
   <properties>
     <com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider_-FolderCredentialsProperty>
       <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
