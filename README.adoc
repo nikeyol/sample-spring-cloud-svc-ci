@@ -1,9 +1,11 @@
-== Pipelines
+= Spring Cloud CI Pipelines
 
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.adoc[concourse]
-* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.adoc[jenkins]
+The master branch uses http://cloud.spring.io/spring-cloud-pipelines/[Spring Cloud Pipelines] to create pipelines for a single small Spring Boot https://github.com/pivotalservices/sample-spring-cloud-svc[application] to demonstrate how easy it is to customize for your own microservices. These pipelines are modified slightly from the official https://github.com/spring-cloud/spring-cloud-pipelines#spring-cloud-pipelines[source code] because our application does not require https://cloud.spring.io/spring-cloud-netflix/[Eureka] or https://cloud.spring.io/spring-cloud-contract/[Spring Cloud Contract] as demonstrated by the http://cloud.spring.io/spring-cloud-pipelines/#quick-start[sample applications] for which the official pipelines are designed.
 
-The master branch uses Spring Cloud Pipelines. You can get most of the documentation for running these pipelines https://github.com/spring-cloud/spring-cloud-pipelines#spring-cloud-pipelines[here].
+== Customized Pipelines
+
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.adoc[Sample Spring Cloud Service Concourse]
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.adoc[Sample Spring Cloud Service Jenkins]
 
 == References
 
