@@ -33,4 +33,5 @@ RUN install-plugins.sh \
   credentials-binding \
   job-dsl \
   delivery-pipeline-plugin \
+  extensible-choice-parameter-plugin \
   config-file-provider

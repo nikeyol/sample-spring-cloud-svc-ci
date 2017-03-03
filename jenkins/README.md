@@ -9,7 +9,7 @@ This project builds a custom Docker container with Jenkins plugins automatically
   ```
   docker build -t malston/jenkins2-cf-pipeline-demo .
   docker-compose up -d
-  docker-compose logs
+  docker-compose logs -f
   ```
 
 ## To Run this Demo
