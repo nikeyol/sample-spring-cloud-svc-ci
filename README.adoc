@@ -1,4 +1,4 @@
-= Spring Cloud CI Pipelines
+= Sample Spring Cloud Service Pipelines
 
 The master branch uses http://cloud.spring.io/spring-cloud-pipelines/[Spring Cloud Pipelines] to create pipelines for a single small Spring Boot https://github.com/pivotalservices/sample-spring-cloud-svc[application] to demonstrate how easy it is to customize for your own microservices. These pipelines are modified slightly from the official https://github.com/spring-cloud/spring-cloud-pipelines#spring-cloud-pipelines[source code] because our application does not require https://cloud.spring.io/spring-cloud-netflix/[Eureka] or https://cloud.spring.io/spring-cloud-contract/[Spring Cloud Contract] as demonstrated by the http://cloud.spring.io/spring-cloud-pipelines/#quick-start[sample applications] for which the official pipelines are designed.
 
