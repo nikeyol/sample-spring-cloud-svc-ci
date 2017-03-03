@@ -17,3 +17,6 @@ docker rm $(docker ps -a -q)  # Delete all Docker containers
 docker-remove-images  # Delete images for supplied IDs or all if no IDs are passed as arguments
 docker images -q -f dangling=true |xargs docker rmi  # Delete all untagged Docker images
 docker images  # List Docker images
+
+rm -rf JENKINS_HOME/
+git checkout JENKINS_HOME/
