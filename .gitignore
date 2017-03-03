@@ -19,18 +19,16 @@ myenv
 .wercker/
 
 jenkins-cli.jar
-JENKINS_HOME/*
-!JENKINS_HOME/jobs
-JENKINS_HOME/jobs/*/builds
-JENKINS_HOME/jobs/*/nextBuildNumber
-
-JENKINS_HOME/jobs/*/jobs/*/lastStable
-JENKINS_HOME/jobs/*/jobs/*/lastSuccessful
-JENKINS_HOME/jobs/*/jobs/*/modules/
-JENKINS_HOME/jobs/*/jobs/*/nextBuildNumber
-
-JENKINS_HOME/jobs/*/jobs/*/builds/
-JENKINS_HOME/jobs/*/jobs/*/workspace/
-JENKINS_HOME/jobs/*/jobs/*/scm-polling.log
-JENKINS_HOME/jobs/*/jobs/*/workspace*/
+jenkins/JENKINS_HOME/*
+!jenkins/JENKINS_HOME/jobs
+jenkins/JENKINS_HOME/jobs/*/builds
+jenkins/JENKINS_HOME/jobs/*/nextBuildNumber
+jenkins/JENKINS_HOME/jobs/*/jobs/*/lastStable
+jenkins/JENKINS_HOME/jobs/*/jobs/*/lastSuccessful
+jenkins/JENKINS_HOME/jobs/*/jobs/*/modules/
+jenkins/JENKINS_HOME/jobs/*/jobs/*/nextBuildNumber
+jenkins/JENKINS_HOME/jobs/*/jobs/*/builds/
+jenkins/JENKINS_HOME/jobs/*/jobs/*/workspace/
+jenkins/JENKINS_HOME/jobs/*/jobs/*/scm-polling.log
+jenkins/JENKINS_HOME/jobs/*/jobs/*/workspace*/
 

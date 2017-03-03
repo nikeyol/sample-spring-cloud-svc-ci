@@ -9,15 +9,15 @@ def flow
 
 stage 'compile'
 node {
-	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-	flow = load 'ci/pipeline.groovy'
+	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+	flow = load 'jenkins/pipeline.groovy'
 	flow.build()
 }
 
 stage 'test'
 node {
-	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-	flow = load 'ci/pipeline.groovy'
+	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+	flow = load 'jenkins/pipeline.groovy'
 	flow.clean_test()
 }
 
@@ -28,50 +28,50 @@ node {
 
 stage 'deploy-to-development'
 node {
-	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-	flow = load 'ci/pipeline.groovy'
-	flow.push('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
+	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+	flow = load 'jenkins/pipeline.groovy'
+	flow.push('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
 }
 
 stage 'run-tests-on-dev'
 parallel(
 	smokeTests: {
 		node {
-			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-			flow = load 'ci/pipeline.groovy'
-			flow.runSmokeTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
+			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+			flow = load 'jenkins/pipeline.groovy'
+			flow.runSmokeTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
 		}
 	},
 	acceptanceTests: {
 		node {
-			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-			flow = load 'ci/pipeline.groovy'
-			flow.runAcceptanceTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
+			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+			flow = load 'jenkins/pipeline.groovy'
+			flow.runAcceptanceTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'development', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-dev')
 		}
 	}
 )
 
 stage name: 'deploy-to-test', concurrency: 1
 node {
-	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-	flow = load 'ci/pipeline.groovy'
-	flow.pushIf('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
+	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+	flow = load 'jenkins/pipeline.groovy'
+	flow.pushIf('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
 }
 
 stage 'run-tests-on-test'
 parallel(
 	smokeTests: {
 		node {
-			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-			flow = load 'ci/pipeline.groovy'
-			flow.runSmokeTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
+			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+			flow = load 'jenkins/pipeline.groovy'
+			flow.runSmokeTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
 		}
 	},
 	acceptanceTests: {
 		node {
-			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-			flow = load 'ci/pipeline.groovy'
-			flow.runAcceptanceTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
+			git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+			flow = load 'jenkins/pipeline.groovy'
+			flow.runAcceptanceTests('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'test', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-test')
 		}
 	}
 )
@@ -85,7 +85,7 @@ try {
 
 stage name: 'deploy-to-prod', concurrency: 1
 node {
-	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'jenkins'])
-	flow = load 'ci/pipeline.groovy'
-	flow.pushIf('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'pivot-bkunjummen', 'prod', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-prod')
+	git([url: "https://github.com/${user}/sample-spring-cloud-svc-ci.git", branch: 'master'])
+	flow = load 'jenkins/pipeline.groovy'
+	flow.pushIf('api.run.pez.pivotal.io', "${cfUser}", "${cfPassword}", 'malston-pivot-org', 'production', 'cfapps.pez.pivotal.io', 'sample-spring-cloud-svc-ci-prod')
 }

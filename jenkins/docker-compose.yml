@@ -1,0 +1,18 @@
+jenkins:
+  image: malston/jenkins2-cf-pipeline-demo
+  ports:
+    - "8080:8080"
+    - "50000:50000"
+  volumes: ["./JENKINS_HOME:/var/jenkins_home"]
+  links:
+    - nexus
+    - sonar
+sonar:
+  image: sonarqube:latest
+  ports:
+    - "9000:9000"
+    - "9092:9092"
+nexus:
+  image: sonatype/nexus:oss
+  ports:
+    - "8081:8081"
