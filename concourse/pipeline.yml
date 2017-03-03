@@ -1,437 +1,379 @@
 ---
-groups:
-- name: all
-  jobs:
-    - test-develop
-    - deploy-develop
-    - test-release
-    - deploy-staging
-    - sonar
-    - acceptance-staging
-    - smoke-staging
-    - publish-rc
-    - merge-release-to-master
-    - test-master
-    - tag-master
-    - publish-release
-    - bump-version
-    - deploy-prod
-    - merge-release-to-develop
-- name: development
-  jobs:
-    - test-develop
-    - deploy-develop
-- name: staging
-  jobs:
-    - test-release
-    - deploy-staging
-    - sonar
-    - acceptance-staging
-    - smoke-staging
-    - publish-rc
-- name: production
-  jobs:
-    - merge-release-to-master
-    - test-master
-    - publish-release
-    - tag-master
-    - bump-version
-    - deploy-prod
-    - merge-release-to-develop
-
 resources:
-  - name: repo-develop
-    type: git
-    source:
-      uri: {{sample-spring-cloud-svc-uri}}
-      branch: develop
-      private_key: {{github-private-key}}
-    check_every: 10s # for demo
-
-  - name: repo-release
-    type: git
-    source:
-      uri: {{sample-spring-cloud-svc-uri}}
-      branch: release
-      private_key: {{github-private-key}}
-    check_every: 10s # for demo
-
-  - name: repo-master
-    type: git
-    source:
-      uri: {{sample-spring-cloud-svc-uri}}
-      branch: master
-      private_key: {{github-private-key}}
-    check_every: 10s # for demo
-
-  - name: pipeline
-    type: git
-    source:
-      uri: https://github.com/pivotalservices/sample-spring-cloud-svc-ci.git
-      branch: master
-
-  - name: version
-    type: semver
-    source:
-      uri: {{sample-spring-cloud-svc-uri}}
-      branch: version
-      private_key: {{github-private-key}}
-      file: version
-      driver: git
-      initial_version: 1.0.0
-
-  - name: cf-prod
-    type: cf
-    source:
-      api: {{cf-api}}
-      username: {{cf-username}}
-      password: {{cf-password}}
-      organization: {{cf-org}}
-      space: {{cf-space-prod}}
-      skip_cert_check: true
-
-  - name: cf-staging
-    type: cf
-    source:
-      api: {{cf-api}}
-      username: {{cf-username}}
-      password: {{cf-password}}
-      organization: {{cf-org}}
-      space: {{cf-space-staging}}
-      skip_cert_check: true
-
-  - name: cf-dev
-    type: cf
-    source:
-      api: {{cf-api}}
-      username: {{cf-username}}
-      password: {{cf-password}}
-      organization: {{cf-org}}
-      space: {{cf-space-dev}}
-      skip_cert_check: true
-
-  - name: release-candidate
-    type: s3
-    source:
-      bucket: {{s3-bucket}}
-      regexp: sample-spring-cloud-svc-ci-(.*).jar
-      access_key_id: {{s3-access-key-id}}
-      secret_access_key: {{s3-secret-access-key}}
-
-  # - name: release-final
-  #   type: s3
-  #   source:
-  #     bucket: {{s3-bucket}}
-  #     regexp: sample-spring-cloud-svc-ci-(.*).jar
-  #     access_key_id: {{s3-access-key-id}}
-  #     secret_access_key: {{s3-secret-access-key}}
-
-  - name: gradle
-    type: docker-image
-    source:
-      repository: malston/sample-spring-cloud-svc-ci-gradle-cache-cache
-
+ - name: repo
+   type: git
+   source:
+    uri: {{app-url}}
+    branch: {{app-branch}}
+    private_key: {{github-private-key}}
+ - name: version
+   type: git
+   source:
+    uri: {{app-url}}
+    branch: version
+    private_key: {{github-private-key}}
+ - name: tools
+   type: git
+   source:
+    uri: {{tools-scripts-url}}
+    branch: {{tools-branch}}
+ - name: m2
+   type: docker-image
+   source:
+    repository: springcloud/spring-pipeline-m2
 jobs:
-  - name: test-develop
-    serial: true
+  - name: generate-version
     public: true
     plan:
       - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get: repo
-          resource: repo-develop
-          trigger: true
-      - task: unit
-        file: pipeline/concourse/tasks/unit.yml
+        - get: tools
+        - get: version
+      - task: generate-version
+        file: tools/concourse/tasks/generate-version.yml
+        params:
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+      - put: version
+        params:
+          repository: out
 
-  - name: deploy-develop
+  - name: build-and-upload
     serial: true
     public: false
     plan:
       - aggregate:
-        - get: pipeline
-        - get: gradle
+        - get: tools
         - get: repo
-          resource: repo-develop
-          passed: [ test-develop ]
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ generate-version ]
           trigger: true
-      - task: build
-        file: pipeline/concourse/tasks/build.yml
+      - task: build-and-upload
+        file: tools/concourse/tasks/build-and-upload.yml
         params:
-          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
-      - put: cf-dev
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+      - put: repo
         params:
-          manifest: repo/manifest-dev.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: {{cf-app-name}}
+          repository: out
+          tag: out/tag
+          only_tag: true
 
-  - name: test-release
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get: repo
-          resource: repo-release
-          trigger: true
-      - task: unit
-        file: pipeline/concourse/tasks/unit.yml
-
-  - name: deploy-staging
+  - name: test-deploy
     serial: true
     public: false
     plan:
       - aggregate:
-        - get: pipeline
-        - get: gradle
+        - get: tools
+        - get: repo
+        - get: m2
         - get: version
-          params: {pre: rc}
-        - get:  repo
-          resource: repo-release
-          passed: [ test-release ]
+          resource: version
+          passed: [ build-and-upload ]
           trigger: true
-      - task: build-rc
-        file: pipeline/concourse/tasks/build-rc.yml
+      - task: test-deploy
+        file: tools/concourse/tasks/test-deploy.yml
         params:
-          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
-      - put: cf-staging
-        params:
-          manifest: repo/manifest-stg.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: {{cf-app-name}}
-      - put: release-candidate
-        params:
-          file: build/sample-spring-cloud-svc-ci-*.jar
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_TEST_USERNAME: {{cf-test-username}}
+          - CF_TEST_PASSWORD: {{cf-test-password}}
+          - CF_TEST_ORG: {{cf-test-org}}
+          - CF_TEST_SPACE: {{cf-test-space}}
+          - CF_TEST_API_URL: {{cf-test-api-url}}
+          - CF_HOSTNAME_UUID: {{cf-hostname-uuid}}
 
-  - name: acceptance-staging
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get: repo
-          resource: repo-release
-          passed: [deploy-staging]
-          trigger: true
-      - task: cats
-        file: pipeline/concourse/tasks/cats.yml
-        params:
-          CF_APP_NAME: {{cf-app-name}}
-          CF_API: {{cf-api}}
-          CF_USER: {{cf-username}}
-          CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-org}}
-          CF_SPACE: {{cf-space-staging}}
-          CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: {{cf-host-staging}}
-
-  - name: smoke-staging
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get: repo
-          resource: repo-release
-          passed: [deploy-staging]
-          trigger: true
-      - task: cats
-        file: pipeline/concourse/tasks/smoke.yml
-        params:
-          CF_APP_NAME: {{cf-app-name}}
-          CF_API: {{cf-api}}
-          CF_USER: {{cf-username}}
-          CF_PASSWORD: {{cf-password}}
-          CF_ORG: {{cf-org}}
-          CF_SPACE: {{cf-space-staging}}
-          CF_DOMAIN: {{cf-domain}}
-          CF_HOST_NAME: {{cf-host-staging}}
-
-  - name: merge-release-to-master
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: repo
-          resource: repo-master
-        - get: repo-release
-          passed: [ test-release ]
-      - task: merge-release-to-master
-        file: pipeline/concourse/tasks/merge-release-to-master.yml
-        params:
-          GIT_EMAIL: {{git-email}}
-          GIT_NAME: {{git-name}}
-      - put: repo
-        resource: repo-master
-        params:
-          repository: out
-
-  - name: test-master
+  - name: test-smoke
     serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get: repo
-          resource: repo-master
-          # comment out below to support hotfix
-          passed: [ merge-release-to-master ]
-          trigger: true
-      - task: unit
-        file: pipeline/concourse/tasks/unit.yml
-
-  - name: tag-master
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get:  repo
-          resource: repo-master
-          passed: [ test-master ]
-          trigger: true
-        - get: repo-release
-        - get: version
-          params: {bump: final}
-      - task: bump-to-release-version
-        file: pipeline/concourse/tasks/bump-to-release-version.yml
-        params:
-          GIT_EMAIL: {{git-email}}
-          GIT_NAME: {{git-name}}
-      - put: repo
-        resource: repo-master
-        params:
-          repository: out
-          tag: version/number
-
-  - name: bump-version
-    serial_groups: [version]
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: gradle
-        - get:  repo-master
-          passed: [ tag-master ]
-          trigger: true
-        - get:  repo
-          resource: repo-release
-        - get: version
-          params: {bump: patch}
-      - task: bump-to-next-develop-version
-        file: pipeline/concourse/tasks/bump-to-next-develop-version.yml
-        params:
-          GIT_EMAIL: {{git-email}}
-          GIT_NAME: {{git-name}}
-      - put: repo
-        resource: repo-release
-        params:
-          repository: out
-      - put: version
-        params: {file: version/number}
-
-  - name: merge-release-to-develop
-    public: true
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: repo
-          resource: repo-develop
-        - get: repo-release
-          passed: [ bump-version ]
-          trigger: true
-      - task: merge-release-to-develop
-        file: pipeline/concourse/tasks/merge-release-to-develop.yml
-        params:
-          GIT_EMAIL: {{git-email}}
-          GIT_NAME: {{git-name}}
-      - put: repo
-        resource: repo-develop
-        params:
-          repository: out
-
-  - name: publish-release
-    plan:
-      - aggregate:
-        - get: pipeline
-        - get: version
-        - get: gradle
-        - get: repo
-          resource: repo-master
-          passed: [ tag-master ]
-          trigger: true
-      - task: publish-release
-        file: pipeline/concourse/tasks/publish-artifact.yml
-        params:
-          NEXUS_URL: {{nexus-url}}
-
-  - name: deploy-prod
     public: false
     plan:
       - aggregate:
-        - get: pipeline
-        - get: gradle
+        - get: tools
+        - get: repo
+        - get: m2
         - get: version
-          params: {pre: final}
-        - get:  repo
-          resource: repo-master
-          passed: [ publish-release ]
+          resource: version
+          passed: [ test-deploy ]
           trigger: true
-      - task: build-final
-        file: pipeline/concourse/tasks/build-rc.yml
+      - task: test-smoke
+        file: tools/concourse/tasks/test-smoke.yml
         params:
-          JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
-      - put: cf-prod
-        params:
-          manifest: repo/manifest.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
-          current_app_name: {{cf-app-name}}
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_TEST_USERNAME: {{cf-test-username}}
+          - CF_TEST_PASSWORD: {{cf-test-password}}
+          - CF_TEST_ORG: {{cf-test-org}}
+          - CF_TEST_SPACE: {{cf-test-space}}
+          - CF_TEST_API_URL: {{cf-test-api-url}}
 
-  - name: sonar
+  - name: test-rollback-deploy
+    serial: true
+    public: false
     plan:
       - aggregate:
-        - get: pipeline
-        - get: gradle
+        - get: tools
         - get: repo
-          resource: repo-release
-          passed: [ test-release ]
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ test-smoke ]
           trigger: true
-      - task: publish-quality-metrics
-        file: pipeline/concourse/tasks/publish-quality-metrics.yml
+      - task: test-rollback-deploy
+        file: tools/concourse/tasks/test-rollback-deploy.yml
         params:
-          SONAR_URL: {{sonar-url}}
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_TEST_USERNAME: {{cf-test-username}}
+          - CF_TEST_PASSWORD: {{cf-test-password}}
+          - CF_TEST_ORG: {{cf-test-org}}
+          - CF_TEST_SPACE: {{cf-test-space}}
+          - CF_TEST_API_URL: {{cf-test-api-url}}
 
-  - name: publish-rc
+  - name: test-rollback-smoke
+    serial: true
+    public: false
     plan:
       - aggregate:
-        - get: pipeline
-        - get: version
-          params: {pre: rc}
-        - get: gradle
+        - get: tools
         - get: repo
-          resource: repo-release
-          passed: [ smoke-staging, acceptance-staging, sonar ]
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ test-rollback-deploy ]
           trigger: true
-      - task: publish-rc
-        file: pipeline/concourse/tasks/publish-artifact.yml
+      - task: test-rollback-smoke
+        file: tools/concourse/tasks/test-rollback-smoke.yml
         params:
-          NEXUS_URL: {{nexus-url}}
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_TEST_USERNAME: {{cf-test-username}}
+          - CF_TEST_PASSWORD: {{cf-test-password}}
+          - CF_TEST_ORG: {{cf-test-org}}
+          - CF_TEST_SPACE: {{cf-test-space}}
+          - CF_TEST_API_URL: {{cf-test-api-url}}
 
-  - name: major
-    serial_groups: [version]
+  - name: stage-deploy
+    serial: true
+    public: false
     plan:
-      - put: version
-        params: {bump: major}
+      - aggregate:
+        - get: tools
+        - get: repo
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ test-rollback-smoke ]
+          trigger: false
+      - task: stage-deploy
+        file: tools/concourse/tasks/stage-deploy.yml
+        params:
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_STAGE_USERNAME: {{cf-stage-username}}
+          - CF_STAGE_PASSWORD: {{cf-stage-password}}
+          - CF_STAGE_ORG: {{cf-stage-org}}
+          - CF_STAGE_SPACE: {{cf-stage-space}}
+          - CF_STAGE_API_URL: {{cf-stage-api-url}}
+          - CF_HOSTNAME_UUID: {{cf-hostname-uuid}}
 
-  - name: minor
-    serial_groups: [version]
+  - name: stage-e2e
+    serial: true
+    public: false
     plan:
-      - put: version
-        params: {bump: minor}
+      - aggregate:
+        - get: tools
+        - get: repo
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ stage-deploy ]
+          trigger: false
+      - task: stage-smoke
+        file: tools/concourse/tasks/stage-e2e.yml
+        params:
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_STAGE_USERNAME: {{cf-stage-username}}
+          - CF_STAGE_PASSWORD: {{cf-stage-password}}
+          - CF_STAGE_ORG: {{cf-stage-org}}
+          - CF_STAGE_SPACE: {{cf-stage-space}}
+          - CF_STAGE_API_URL: {{cf-stage-api-url}}
 
-  - name: patch
-    serial_groups: [version]
+  - name: prod-deploy
+    serial: true
+    public: false
     plan:
-      - put: version
-        params: {bump: patch}
+      - aggregate:
+        - get: tools
+        - get: repo
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ stage-e2e ]
+          trigger: false
+      - task: prod-deploy
+        file: tools/concourse/tasks/prod-deploy.yml
+        params:
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_PROD_USERNAME: {{cf-prod-username}}
+          - CF_PROD_PASSWORD: {{cf-prod-password}}
+          - CF_PROD_ORG: {{cf-prod-org}}
+          - CF_PROD_SPACE: {{cf-prod-space}}
+          - CF_PROD_API_URL: {{cf-prod-api-url}}
+          - CF_HOSTNAME_UUID: {{cf-hostname-uuid}}
+      - put: repo
+        params:
+          repository: out
+          tag: out/tag
+          only_tag: true
+
+  - name: prod-complete
+    serial: true
+    public: false
+    plan:
+      - aggregate:
+        - get: tools
+        - get: repo
+        - get: m2
+        - get: version
+          resource: version
+          passed: [ prod-deploy ]
+          trigger: false
+      - task: prod-complete
+        file: tools/concourse/tasks/prod-complete.yml
+        params:
+          - _JAVA_OPTIONS: -Djava.security.egd=file:/dev/./urandom
+          - GIT_EMAIL: {{git-email}}
+          - GIT_NAME: {{git-name}}
+          - REDOWNLOAD_INFRA: {{redownload-infra}}
+          - REDEPLOY_INFRA: {{redeploy-infra}}
+          - EUREKA_GROUP_ID: {{eureka-group-id}}
+          - EUREKA_ARTIFACT_ID: {{eureka-artifact-id}}
+          - EUREKA_VERSION: {{eureka-version}}
+          - STUBRUNNER_GROUP_ID: {{stubrunner-group-id}}
+          - STUBRUNNER_ARTIFACT_ID: {{stubrunner-artifact-id}}
+          - STUBRUNNER_VERSION: {{stubrunner-version}}
+          - M2_SETTINGS_REPO_ID: {{m2-settings-repo-id}}
+          - M2_SETTINGS_REPO_USERNAME: {{m2-settings-repo-username}}
+          - M2_SETTINGS_REPO_PASSWORD: {{m2-settings-repo-password}}
+          - REPO_WITH_JARS: {{repo-with-jars}}
+          - M2_REPO: {{maven-local-dir}}
+          - CF_PROD_USERNAME: {{cf-prod-username}}
+          - CF_PROD_PASSWORD: {{cf-prod-password}}
+          - CF_PROD_ORG: {{cf-prod-org}}
+          - CF_PROD_SPACE: {{cf-prod-space}}
+          - CF_PROD_API_URL: {{cf-prod-api-url}}
