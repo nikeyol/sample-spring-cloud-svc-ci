@@ -32,6 +32,7 @@ RUN install-plugins.sh \
   email-ext \
   credentials-binding \
   job-dsl \
+  dashboard-view \
   delivery-pipeline-plugin \
   extensible-choice-parameter \
   config-file-provider
