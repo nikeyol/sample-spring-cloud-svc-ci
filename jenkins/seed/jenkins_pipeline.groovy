@@ -43,7 +43,7 @@ factory.job('jenkins-pipeline-seed') {
         }
     }
     steps {
-        gradle("clean build")
+        // gradle("clean build")
         dsl {
             external('jenkins/jobs/jenkins_pipeline_sample*.groovy')
             removeAction('DISABLE')
