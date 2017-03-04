@@ -7,6 +7,8 @@ ROOT_IN_M2_RESOURCE="${ROOT_FOLDER}/${M2_REPO}/root"
 export M2_HOME="${ROOT_IN_M2_RESOURCE}/.m2"
 export NEW_LOCAL_REPO="${M2_HOME}/repository/"
 
+mkdir -p ${NEW_LOCAL_REPO}
+
 cat > ${HOME}/.m2/settings.xml <<EOF
 
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
