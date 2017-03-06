@@ -30,11 +30,7 @@ just check out the section on how to update the URL to Artifactory)>>
 
 ==== Fork repos
 
-[[fork]] There are 4 apps that are composing the pipeline
-
-  - https://github.com/pivotalservices/sample-spring-cloud-svc[Sample Spring Cloud Service]
-
-You need to fork only these. That's because only then will your user be able to tag and push the tag to repo.
+[[fork]] There is only 1 app that is used by the pipeline. You only need to fork this repo so your user is able to tag and push the tag to repo.
 
   - https://github.com/pivotalservices/sample-spring-cloud-svc[Sample Spring Cloud Service]
 
