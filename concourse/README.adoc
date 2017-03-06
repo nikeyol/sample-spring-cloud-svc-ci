@@ -247,6 +247,7 @@ opinionated decisions like:
     * `stubIds` task to retrieve list of collaborators for which stubs should be downloaded
 
 This is the initial approach that can be easily changed in the future.
+In our version of the pipeline, however, we removed the requirements for Spring Cloud Contract Stub Runner and Spring Cloud Eureka.
 
 ==== Can I modify this to reuse in my project?
 
