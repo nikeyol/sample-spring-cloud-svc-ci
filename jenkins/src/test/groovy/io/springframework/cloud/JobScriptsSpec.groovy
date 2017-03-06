@@ -41,8 +41,7 @@ class JobScriptsSpec extends Specification {
 		and:
 		if (file.name.endsWith('jenkins_pipeline_sample.groovy')) {
 			List<String> jobNames = scripts.jobs.collect { it.jobName }
-			assert jobNames.find { it == "github-analytics-pipeline-build" }
-			assert jobNames.find { it == "github-webhook-pipeline-build" }
+			assert jobNames.find { it == "sample-spring-cloud-svc-pipeline-build" }
 		}
 
 		where:
