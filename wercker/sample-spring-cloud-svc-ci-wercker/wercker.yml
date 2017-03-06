@@ -1,0 +1,84 @@
+box: java
+
+dev:
+  steps:
+    - script:
+        name: run gradle bootRun
+        code: |
+          ./gradlew bootRun
+
+test:
+  steps:
+    - script:
+        name: run gradle test
+        code: |
+          ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR test
+    - script:
+        name: save output
+        code: |
+          cp -R ./ ${WERCKER_OUTPUT_DIR}
+
+build:
+  steps:
+    - script:
+        name: bump version
+        code: |
+          export APP_VERSION=$(./gradlew -q bumpPatch release printVersion)
+    - script:
+        name: run gradle build
+        code: |
+          ./gradlew -Pversion=$APP_VERSION --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR build release
+    - script:
+        name: save output
+        code: |
+          $(echo $APP_VERSION > $WERCKER_OUTPUT_DIR/version)
+          cp -R ./ ${WERCKER_OUTPUT_DIR}
+
+deploy:
+  box: google/golang
+  steps:
+    - script:
+        name: install packages
+        code: |
+          sudo apt-get update -y
+          sudo apt-get install -y ssh wget
+    - script:
+        name: get version
+        code: |
+          export WERCKER_GITHUB_CREATE_RELEASE_ID=$(cat version)
+          echo "WERCKER_GITHUB_CREATE_RELEASE_ID=$WERCKER_GITHUB_CREATE_RELEASE_ID"
+          export APP_VERSION=$WERCKER_GITHUB_CREATE_RELEASE_ID
+    - xchapter7x/cf-push-zdd:
+        num_instances: $CF_INSTANCES
+        user_name: $CF_USER
+        user_pass: $CF_PASS
+        org: $CF_ORG
+        space: $CF_SPACE
+        api_url: $CF_APIURL
+        app_name: $CF_APPNAME
+        use_manifest: true
+        manifest: $CF_MANIFEST_FILE_PATH
+        path: build/libs/sample-spring-cloud-svc-ci-$APP_VERSION.jar
+    - github-create-release:
+        token: $GITHUB_TOKEN
+        tag: $WERCKER_GITHUB_CREATE_RELEASE_ID
+        title: Sample Spring Cloud Service $WERCKER_GITHUB_CREATE_RELEASE_ID
+        draft: $RELEASE_DRAFT
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: build/libs/sample-spring-cloud-svc-ci-$APP_VERSION.jar
+        content-type: application/x-gzip
+
+smoke-test:
+  steps:
+    - script:
+      name: run smoke tests
+      code: |
+        ./mvnw test -P smoke -Durl=${APP_URL}/message
+
+acceptance-test:
+  steps:
+    - script:
+      name: run acceptance tests
+      code: |
+        ./gradlew cfAcceptanceTest -Pcf.ccHost=${CF_API} -Pcf.ccUser=${CF_USER} -Pcf.ccPassword=${CF_PASS} -Pcf.org=${CF_ORG} -Pcf.space=${CF_SPACE} -Pcf.domain=${CF_DOMAIN} -Pcf.hostName=${CF_APP_HOSTNAME} -Pcf.name=${CF_APPNAME}

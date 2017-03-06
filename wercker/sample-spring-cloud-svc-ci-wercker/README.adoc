@@ -1,0 +1,16 @@
+== Pipelines
+
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/concourse/README.md[concourse]
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/blob/master/jenkins/README.adoc[jenkins]
+* https://github.com/pivotalservices/sample-spring-cloud-svc-ci/tree/wercker[wercker]
+
+== Running Locally
+
+* Start up the Service using the following command
+
+[source,java]
+----
+./gradlew bootRun
+----
+
+* A very basic UI to exercise the API is available at http://localhost:8080
