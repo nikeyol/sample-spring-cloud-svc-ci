@@ -20,14 +20,6 @@ If you want to just run the demo as far as possible using PCF Dev and Docker Com
 - <<seed,Run the seed job>>
 - <<pipeline,Run the `sample-spring-cloud-svc` pipeline>>
 
-Below you can find <<optional,optional>> steps needed to be taken when you want to customize the pipeline
-
-- <<env,Setup Jenkins env vars (if you want to use the demo defaults and you're using Docker Machine
-just check out the section on how to update the URL to Artifactory)>>
-- <<settings,Add `settings.xml` for Jenkins' master (you can skip this if you want to use our defaults)>>
-- <<misc,Setup Jenkins miscs (JDK installation, Groovy macro processing etc.)>>
-- <<credentials,Setup Jenkins credentials>>
-
 ==== Fork repos
 
 [[fork]] There is only 1 app that is used by the pipeline. You only need to fork this repo so your user is able to tag and push the tag to repo.
