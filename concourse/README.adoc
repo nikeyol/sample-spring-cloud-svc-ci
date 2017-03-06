@@ -6,7 +6,7 @@
 
 The repository contains a pipeline that will build and deploy  - https://github.com/pivotalservices/sample-spring-cloud-svc[Sample Spring Cloud Service] application.
 
-Start https://github.com/spring-cloud/spring-cloud-pipelines/tree/master/concourse[here], if you would rather deploy the sample applications that are used with the Spring Cloud Pipelines http://cloud.spring.io/spring-cloud-pipelines/spring-cloud-pipelines.html[documentation].
+Start https://github.com/spring-cloud/spring-cloud-pipelines/tree/master/concourse#concourse-pipeline[here], if you would rather deploy the sample applications that are used with the Spring Cloud Pipelines http://cloud.spring.io/spring-cloud-pipelines/spring-cloud-pipelines.html[documentation].
 
 === Step by step
 
