@@ -17,7 +17,6 @@ If you want to just run the demo as far as possible using PCF Dev and Docker Com
 - <<pcfdev,Start PCF Dev (if you don't want to use an existing one)>>
 - <<fly,Setup the `fly` CLI>>
 - <<creds,Setup your `credentials.yml`>>
-- <<seed,Run the seed job>>
 - <<pipeline,Run the `sample-spring-cloud-svc` pipeline>>
 
 ==== Fork repos
@@ -165,6 +164,7 @@ You can override these values in exactly that order (e.g. `./set-pipeline.sh som
 
 ==== Run the `sample-spring-cloud-svc` pipeline
 
+[[pipeline]]
 {nbsp}
 {nbsp}
 
