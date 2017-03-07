@@ -30,7 +30,7 @@ boolean gradleCreated = new File(gradleHome).mkdirs()
 if (gradleCreated) {
 	boolean settingsCreated = new File("${gradleHome}/gradle.properties").createNewFile()
 	if (settingsCreated) {
-		new File("${gradleHome}/gradle.proprties").text =
+		new File("${gradleHome}/gradle.properties").text =
 				new File('/usr/share/jenkins/gradle.properties').text
 	}  else {
 		println "Failed to create gradle.properties!"
@@ -42,7 +42,7 @@ if (gradleCreated) {
 println "Creating the seed job"
 new DslScriptLoader(jobManagement).with {
 	runScript(jobScript.text
-			.replace('https://github.com/pivotalservices', "https://github.com/${System.getenv('FORKED_ORG')}")
+			.replace('https://github.com/pivotalservices/sample-spring-cloud-svc,https://github.com/pivotalservices/sample-spring-cloud-svc', "${System.getenv('FORKED_REPOS')}")
 			.replace('http://artifactory', "http://${System.getenv('EXTERNAL_IP') ?: "localhost"}"))
 }
 

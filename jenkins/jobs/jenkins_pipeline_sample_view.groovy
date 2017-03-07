@@ -4,7 +4,8 @@ DslFactory dsl = this
 
 // we're parsing the REPOS parameter to retrieve list of repos to build
 String repos = binding.variables['REPOS'] ?:
-		['https://github.com/pivotalservices/sample-spring-cloud-svc']
+		['https://github.com/pivotalservices/github-analytics',
+		 'https://github.com/pivotalservices/github-webhook'].join(',')
 List<String> parsedRepos = repos.split(',')
 parsedRepos.each {
 	List<String> parsedEntry = it.split('\\$')
