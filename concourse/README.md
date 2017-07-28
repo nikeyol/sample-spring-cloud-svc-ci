@@ -47,7 +47,7 @@ You'll need to set this to something that isn't taken and set the `s3-bucket` va
     ```
     cf-domain: local.pcfdev.io
     cf-api: api.local.pcfdev.io
-    cf-app-name: sample-spring-cloud-svc-ci
+    cf-app-name: sample-spring-cloud-svc
     cf-username: admin
     cf-password: admin
     cf-org: demo
@@ -55,7 +55,7 @@ You'll need to set this to something that isn't taken and set the `s3-bucket` va
     cf-space-staging: staging
     cf-space-prod: production
     cf-space-test: test
-    sample-spring-cloud-svc-uri: git@github.com:malston/sample-spring-cloud-svc-ci.git
+    sample-spring-cloud-svc-uri: git@github.com:malston/sample-spring-cloud-svc.git
     ```
 
   1. Change `sample-spring-cloud-svc-uri` username to your github username where you forked this project to.
