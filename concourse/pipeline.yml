@@ -68,7 +68,7 @@ resources:
     type: git
     source:
       uri: https://github.com/pivotalservices/sample-spring-cloud-svc-ci.git
-      branch: master
+      branch: legacy-master
 
   - name: version
     type: semver
