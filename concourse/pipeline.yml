@@ -163,7 +163,7 @@ jobs:
       - put: cf-dev
         params:
           manifest: repo/manifest-dev.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
+          path: build/sample-spring-cloud-svc-*.jar
           current_app_name: {{cf-app-name}}
 
   - name: test-release
@@ -199,11 +199,11 @@ jobs:
       - put: cf-staging
         params:
           manifest: repo/manifest-stg.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
+          path: build/sample-spring-cloud-svc-*.jar
           current_app_name: {{cf-app-name}}
       - put: release-candidate
         params:
-          file: build/sample-spring-cloud-svc-ci-*.jar
+          file: build/sample-spring-cloud-svc-*.jar
 
   - name: acceptance-staging
     plan:
@@ -385,7 +385,7 @@ jobs:
       - put: cf-prod
         params:
           manifest: repo/manifest.yml
-          path: build/sample-spring-cloud-svc-ci-*.jar
+          path: build/sample-spring-cloud-svc-*.jar
           current_app_name: {{cf-app-name}}
 
   - name: sonar
