@@ -65,7 +65,10 @@ function testRollbackDeploy() {
     echo "Last prod version equals ${LATEST_PROD_VERSION}"
     downloadAppBinary ${REPO_WITH_BINARIES} ${projectGroupId} ${appName} ${LATEST_PROD_VERSION}
     logInToPaas
-    deployAndRestartAppWithNameForSmokeTests ${appName} "${appName}-${LATEST_PROD_VERSION}"
+    local rabbitName="rabbitmq-${appName}"
+    local eurekaName="eureka-${appName}"
+    local mysqlName="mysql-${appName}"
+    deployAndRestartAppWithNameForSmokeTests ${appName} "${appName}-${LATEST_PROD_VERSION}" "${rabbitName}" "${eurekaName}" "${mysqlName}"
     propagatePropertiesForTests ${appName}
     # Adding latest prod tag
     echo "LATEST_PROD_TAG=${latestProdTag}" >> ${OUTPUT_FOLDER}/test.properties
@@ -194,19 +197,23 @@ function deployAndRestartAppWithName() {
 function deployAndRestartAppWithNameForSmokeTests() {
     local appName="${1}"
     local jarName="${2}"
-    local rabbitName="rabbitmq-${appName}"
-    local eurekaName="eureka-${appName}"
-    local mysqlName="mysql-${appName}"
+    local rabbitName="${3}"
+    local eurekaName="${4}"
+    local mysqlName="${5}"
     local profiles="cloud,smoke"
     local lowerCaseAppName=$( toLowerCase "${appName}" )
     deleteAppInstance "${appName}"
     echo "Deploying and restarting app with name [${appName}] and jar name [${jarName}] and env [${env}]"
     deployAppWithName "${appName}" "${jarName}" "${ENVIRONMENT}" 'false'
-    bindService "${rabbitName}" "${appName}"
+    if [[ "${rabbitName}" != "" ]]; then
+        bindService "${rabbitName}" "${appName}"
+    fi
     if [[ "${eurekaName}" != "" ]]; then
         bindService "${eurekaName}" "${appName}"
     fi
-    bindService "${mysqlName}" "${appName}"
+    if [[ "${mysqlName}" != "" ]]; then
+        bindService "${mysqlName}" "${appName}"
+    fi
     setEnvVar "${lowerCaseAppName}" 'spring.profiles.active' "${profiles}"
     restartApp "${appName}"
 }
