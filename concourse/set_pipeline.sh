@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PIPELINE_NAME=${1:-github-webhook}
+PIPELINE_NAME=${1:-sample-spring-cloud-svc}
 ALIAS=${2:-docker}
 CREDENTIALS=${3:-credentials.yml}
 
