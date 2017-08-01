@@ -15,6 +15,7 @@ out/
 *.iml
 
 credentials.yml
+credentials-scp.yml
 myenv
 .wercker/
 
