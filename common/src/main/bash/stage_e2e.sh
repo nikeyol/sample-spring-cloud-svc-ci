@@ -1,9 +1,12 @@
 #!/bin/bash
 
-set -e
+set -o errexit
 
-source pipeline.sh || echo "No pipeline.sh found"
+__DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Application URL [${APPLICATION_URL}]"
+export ENVIRONMENT=STAGE
 
-runE2eTests ${APPLICATION_URL}
+[[ -f "${__DIR}/pipeline.sh" ]] && source "${__DIR}/pipeline.sh" || \
+    echo "No pipeline.sh found"
+
+runE2eTests

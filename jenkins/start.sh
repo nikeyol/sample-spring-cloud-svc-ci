@@ -12,7 +12,7 @@ fi
 
 export PIPELINE_GIT_USERNAME="${1}"
 export PIPELINE_GIT_PASSWORD="${2}"
-export FORKED_REPOS="${3}"
+export FORKED_ORG="${3}"
 export EXTERNAL_IP="${4}"
 
 if [[ -z "${EXTERNAL_IP}" ]]; then
@@ -22,7 +22,7 @@ if [[ -z "${EXTERNAL_IP}" ]]; then
     fi
 fi
 
-echo "Forked repos [${FORKED_REPOS}]"
+echo "Forked organization [${FORKED_ORG}]"
 echo "External IP [${EXTERNAL_IP}]"
 
 docker-compose build

@@ -42,7 +42,7 @@ if (gradleCreated) {
 println "Creating the seed job"
 new DslScriptLoader(jobManagement).with {
 	runScript(jobScript.text
-			.replace('https://github.com/pivotalservices/sample-spring-cloud-svc,https://github.com/pivotalservices/sample-spring-cloud-svc', "${System.getenv('FORKED_REPOS')}")
+			.replace('https://github.com/marcingrzejszczak', "https://github.com/${System.getenv('FORKED_ORG')}")
 			.replace('http://artifactory', "http://${System.getenv('EXTERNAL_IP') ?: "localhost"}"))
 }
 
@@ -58,6 +58,49 @@ println "Creating the credentials"
 						"CF credential [$id]", "user", "pass"))
 		SystemCredentialsProvider.getInstance().save()
 	}
+}
+
+println "Adding credentials to deploy to the repo with jars"
+String repoWithJarsId = "repo-with-binaries"
+boolean repoWithJarCredsMissing = SystemCredentialsProvider.getInstance().getCredentials().findAll {
+	it.getDescriptor().getId() == repoWithJarsId
+}.empty
+if (repoWithJarCredsMissing) {
+	println "Credential [${repoWithJarsId}] is missing - will create it"
+	SystemCredentialsProvider.getInstance().getCredentials().add(
+			new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, repoWithJarsId,
+					"Repo with jars credential [${repoWithJarsId}]", "admin", "password"))
+	SystemCredentialsProvider.getInstance().save()
+}
+
+
+println "Importing GPG Keys"
+def privateKey = new File('/usr/share/jenkins/private.key')
+def publicKey = new File('/usr/share/jenkins/public.key')
+
+void importGpgKey(String path) {
+	def sout = new StringBuilder(), serr = new StringBuilder()
+	String command = "gpg --import " + path
+	def proc = command.execute()
+	proc.consumeProcessOutput(sout, serr)
+	proc.waitForOrKill(1000)
+	println "out> $sout err> $serr"
+}
+
+if (privateKey.exists()) {
+	println "Importing private key from " + privateKey.getPath()
+	importGpgKey(privateKey.getPath())
+	privateKey.delete()
+} else {
+	println "Private key file does not exist in " + privateKey.getPath()
+}
+
+if (publicKey.exists()) {
+	println "Importing public key from " + publicKey.getPath()
+	importGpgKey(publicKey.getPath())
+	publicKey.delete()
+} else {
+	println "Public key file does not exist in " + publicKey.getPath()
 }
 
 String gitUser = new File('/usr/share/jenkins/gituser')?.text ?: "changeme"

@@ -1,13 +1,12 @@
 #!/bin/bash
 
-set -e
+set -o errexit
 
-source pipeline.sh || echo "No pipeline.sh found"
+__DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-projectArtifactId=$( retrieveArtifactId )
+export ENVIRONMENT=PROD
 
-# Log in to CF to start deployment
-logInToCf "${REDOWNLOAD_INFRA}" "${CF_PROD_USERNAME}" "${CF_PROD_PASSWORD}" "${CF_PROD_ORG}" "${CF_PROD_SPACE}" "${CF_PROD_API_URL}"
+[[ -f "${__DIR}/pipeline.sh" ]] && source "${__DIR}/pipeline.sh" || \
+    echo "No pipeline.sh found"
 
-# Finish the blue green deployment
-deleteTheOldApplicationIfPresent "${projectArtifactId}"
+deleteBlueInstance

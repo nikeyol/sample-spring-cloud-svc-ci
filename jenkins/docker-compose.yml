@@ -7,7 +7,7 @@ services:
         gituser: "${PIPELINE_GIT_USERNAME}"
         gitpass: "${PIPELINE_GIT_PASSWORD}"
     environment:
-      FORKED_REPOS: "${FORKED_REPOS}"
+      FORKED_ORG: "${FORKED_ORG}"
       EXTERNAL_IP: "${EXTERNAL_IP}"
     ports:
       - "50000:50000"
@@ -17,6 +17,6 @@ services:
     links:
       - artifactory
   artifactory:
-    image: jfrog-docker-registry.bintray.io/artifactory/artifactory-oss:latest
+    image: docker.bintray.io/jfrog/artifactory-oss:latest
     ports:
       - "8081:8081"
