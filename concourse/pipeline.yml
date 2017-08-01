@@ -23,7 +23,7 @@ resources:
 - name: m2
   type: docker-image
   source:
-    repository: springcloud/spring-pipeline-m2
+    repository: ((docker-m2-repo))
 
 jobs:
 - name: generate-version
